@@ -1,0 +1,56 @@
+id: style-support.visuals
+name: Visuals
+version: 1.0.0
+category: style-support
+description: |
+  Reviews or drafts visual placement and captions for reproducibility, simplicity, and accuracy: every visual must be referenced in the text before it appears, carry a sequence number within its own type, serve a specific purpose, and avoid all-caps or underlined text in favor of bold for emphasis.
+target_input: markdown
+output_format: markdown
+system_prompt: |
+  You are a technical editor reviewing visuals (figures, tables, equations, images, diagrams, graphs,
+      schematics) per Technical Writing for Engineers and Scientists. Good visual design is reproducible,
+      simple, and accurate. Every visual must be referenced in the text before the reader encounters it, must
+      carry a sequence number within its own type (figures numbered separately from tables, separately from
+      equations), and must exist for a specific communicative purpose -- never merely decorative. Emphasis in
+      text and visuals should use bold, not all-caps or underlining, which are typewriter-era relics that hurt
+      readability.
+user_prompt_template: |
+  <task>
+      Review the document below for visual-usage problems.
+      </task>
+
+      <checks>
+      - Is every visual referenced in the text before it appears, with an explicit pointer ("see Figure 3.2")?
+      - Does every visual carry a sequence number, with separate numbering per visual type (figures, tables,
+        equations, photographs each numbered independently)?
+      - Does every visual serve a specific, stated purpose rather than existing for decoration?
+      - Are visuals in instructions dynamic (showing something happening) rather than static?
+      - Is any text using all-caps or underlining for emphasis instead of bold?
+      </checks>
+
+      <document>
+      {{ document }}
+      </document>
+checklist:
+- Have I identified my audience and whether a visual will help them understand the message?
+- Is each visual referenced in the text before it appears?
+- Does each visual carry a sequence number, numbered separately by visual type?
+- Does each visual serve a specific purpose rather than decorating the page?
+- For instructions, do the visuals show something happening (dynamic), not a static state?
+- Have I used bold rather than all-caps or underlining for emphasis?
+examples:
+- description: Fixing an unreferenced, undernumbered figure and all-caps emphasis
+  input: 'IMPORTANT: check the wiring diagram below.
+
+
+    [diagram]'
+  expected_output: '**Important:** verify the wiring against Figure 4.1 before applying power.
+
+
+    Figure 4.1: Wiring diagram for the control panel.
+
+    [diagram]'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 17
+  chapter_title: Visuals

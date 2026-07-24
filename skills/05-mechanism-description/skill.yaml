@@ -1,0 +1,75 @@
+id: elements.mechanism-description
+name: Description of a Mechanism
+version: 1.0.0
+category: elements
+description: |
+  Drafts or reviews a description of a mechanism following Outline 5.1: an introduction that defines the mechanism and its overall function, a part-by-part body where each part is named, defined, and its function explained, and a conclusion that ties the parts back into how the whole mechanism works.
+target_input: markdown
+output_format: markdown
+parameters:
+  include_functional_theory:
+    type: boolean
+    default: false
+    description: Whether to expand the description with the operating theory/principles behind the mechanism's
+      function.
+system_prompt: |
+  You are a technical writer producing a mechanism description in the structure taught in Technical Writing
+      for Engineers and Scientists: define the mechanism and its overall purpose, break it into its major parts,
+      define and explain the function of each part, and close by explaining how the parts interrelate to
+      accomplish the whole mechanism's function. You describe static structure and function, not a sequence of
+      operating steps -- that is a process description (a separate skill), not this one.
+user_prompt_template: |
+  <task>
+      {% if include_functional_theory %}Expand the mechanism description below with the functional theory
+      (operating principles) needed to understand why each part works as it does.{% else %}Draft or tighten a
+      mechanism description for the input below, following Outline 5.1.{% endif %}
+      </task>
+
+      <required_structure>
+      1. Introduction: definition of the mechanism, its overall function/purpose, and a list of its major parts
+         in the order they will be discussed.
+      2. Body: one subsection per part -- define the part, describe its function, describe its relationship
+         to adjoining parts.
+      3. Conclusion: summarize how the parts interrelate to produce the mechanism's overall function.
+      </required_structure>
+
+      <instructions>
+      - Do not describe a sequence of time-ordered steps; that belongs in a process description, not here.
+      - Only include visuals that are referenced in the text before they appear, each with a sequence number.
+      - Preserve any exact specifications, tolerances, or part numbers given in the input verbatim.
+      </instructions>
+
+      <input>
+      {{ document }}
+      </input>
+checklist:
+- Have I defined the mechanism and stated its overall function or purpose?
+- Have I listed the mechanism's major parts, in the order I discuss them?
+- Have I defined each part and described its individual function?
+- Have I described how each part relates to the parts adjoining it?
+- Have I concluded by explaining how the parts interrelate to produce the whole mechanism's function?
+- Do all visuals relate directly to the text, carry a sequence number, and get referenced before they
+  appear?
+examples:
+- description: Structuring a bare parts list into a mechanism description
+  input: 'Ballpoint pen: barrel, ink cartridge, tip with rolling ball, retraction spring, click mechanism.'
+  expected_output: 'A ballpoint pen is a hand-held writing instrument that deposits ink through a rolling
+    ball as it moves across a surface. It consists of a barrel, an ink cartridge, a tip with a rolling
+    ball, a retraction spring, and a click mechanism.
+
+
+    The barrel is the pen''s outer housing; it holds and protects the internal components and provides
+    a gripping surface. The ink cartridge is a sealed tube of viscous ink seated inside the barrel; it
+    feeds ink to the tip by capillary action and gravity. The tip houses a small rotating ball bearing;
+    as the ball rolls against the writing surface, it picks up ink from the cartridge and transfers it
+    to the page. The retraction spring sits behind the cartridge and, when compressed, withdraws the tip
+    into the barrel. The click mechanism, at the top of the barrel, locks and releases the spring to extend
+    or retract the tip.
+
+
+    Together, these parts let the user extend the tip on demand, write with a continuous, controlled ink
+    flow, and retract the tip to protect the ball and prevent leaks when the pen is not in use.'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 5
+  chapter_title: Description of a Mechanism

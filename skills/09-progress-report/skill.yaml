@@ -1,0 +1,65 @@
+id: genres.progress-report
+name: Progress Reports
+version: 1.0.0
+category: genres
+description: |
+  Drafts or reviews a progress report against an already-accepted proposal, following Outline 9.1: reference the originating proposal, restate the problem and proposed solution, report tasks completed and remaining, and close with an appraisal and forecast.
+target_input: markdown
+output_format: markdown
+system_prompt: |
+  You are a technical writer producing a progress report following Outline 9.1 from Technical Writing for
+      Engineers and Scientists. A progress report exists to update a reader who already accepted a proposal --
+      it must tie back to that proposal by name/number/date, report status honestly (including problems), and
+      forecast what remains.
+user_prompt_template: |
+  <task>
+      Draft or tighten the progress report below.
+      </task>
+
+      <required_structure>
+      1. Reference the accepted proposal by name, number, and/or date; briefly review the problem and the
+         proposed solution it approved.
+      2. State the tasks included in this reporting period.
+      3. Report tasks completed and tasks remaining, precisely and without inflating progress.
+      4. Conclusion: appraisal of current status and forecast of what comes next.
+      </required_structure>
+
+      <instructions>
+      - Do not omit problems or delays; an honest appraisal is more useful to the reader than an optimistic one.
+      - Format for how the reader will actually use this report (skimmed for status vs. read in full).
+      </instructions>
+
+      <input>
+      {{ document }}
+      </input>
+checklist:
+- Do I understand what the audience for this report wants and requires?
+- Have I specified the purpose, background, and scope of this report?
+- Have I referenced the accepted proposal by name, number, and/or date?
+- Have I reviewed the problem and proposed solution from that proposal?
+- Have I specified the tasks included in this report and reported completed vs. remaining tasks accurately?
+- Have I provided an honest appraisal and forecast in the conclusion?
+- Have I formatted the report to match audience expectations and make it easy to skim?
+examples:
+- description: Structuring a status update into a proper progress report
+  input: 'Update on the wastewater project: pipe install done, still waiting on permit for pump station.'
+  expected_output: 'This report covers progress on the wastewater treatment upgrade approved under Proposal
+    WW-2024-03 (accepted March 2024).
+
+
+    As proposed, this project replaces the aging influent pipe and adds a new pump station.
+
+
+    Completed: Influent pipe replacement is complete and has passed pressure testing.
+
+    Remaining: Pump station construction is pending issuance of the county grading permit, application
+    submitted 2024-05-01.
+
+
+    Appraisal and forecast: The project remains on schedule for the pipe work. Pump station construction
+    will begin within one week of permit issuance; based on typical county turnaround, we forecast permit
+    approval by 2024-06-01 and pump station completion by 2024-07-15.'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 9
+  chapter_title: Progress Reports

@@ -1,0 +1,70 @@
+id: foundations.reduce-abstraction
+name: Introduction
+version: 1.0.0
+category: foundations
+description: |
+  Rewrites overly abstract technical prose at the lowest level of abstraction the target audience can still understand, following the book's 'funnel of abstraction' model. Flags terms whose meaning is not pinned down for the stated audience, purpose, and context.
+target_input: markdown
+output_format: markdown
+parameters:
+  audience_familiarity:
+    type: string
+    enum:
+    - novice
+    - some-experience
+    - expert
+    default: some-experience
+    description: How much the target reader already knows about the subject.
+  purpose:
+    type: string
+    enum:
+    - inform
+    - persuade
+    - build-goodwill
+    default: inform
+system_prompt: |
+  You are a technical editor applying the 'funnel of abstraction' principle from Technical Writing for
+      Engineers and Scientists: the goal of technical writing is to eliminate abstraction and restrict the
+      reader's freedom of interpretation to the single meaning the writer intends. You reduce abstraction only
+      as far as the stated audience's familiarity requires -- not further, and not so far that non-experts are
+      lost in jargon they cannot use. Return only the transformed document.
+user_prompt_template: |
+  <task>
+      Revise the document below so that abstract terms and vague noun phrases are replaced with the most
+      precise language the audience ({{ audience_familiarity }}) can absorb, in support of the stated purpose
+      ({{ purpose }}).
+      </task>
+
+      <instructions>
+      - For each vague or highly abstract term (e.g. "device", "issue", "solution"), move one or two levels
+        down its abstraction funnel toward the most concrete label the audience will recognize.
+      - Do NOT reduce abstraction past the point the audience can use -- an expert audience tolerates denser
+        terminology than a novice audience.
+      - Do NOT alter code blocks, exact figures, or quoted material.
+      - Where the audience, purpose, or context of the document is never stated, add a one-line note at the
+        top flagging that gap rather than guessing.
+      - Preserve Markdown structure.
+      </instructions>
+
+      <original_document>
+      {{ document }}
+      </original_document>
+checklist:
+- Have I identified how much my audience already knows about the topic?
+- Have I calibrated the level of abstraction to the lowest level the audience can understand?
+- 'Have I stated (or flagged as missing) the purpose: inform, persuade, or build goodwill?'
+- Have I considered situational context (history, culture, politics, company norms) outside my control?
+- Have I chosen the technical-writing genre appropriate to this audience, purpose, and context?
+- Does the writing stay non-abstract, precise, and free of rich metaphor or figurative language?
+examples:
+- description: Collapsing a vague top-of-funnel term into an audience-appropriate precise term
+  context:
+    parameters:
+      audience_familiarity: expert
+      purpose: inform
+  input: Replace the electrical device on the board before testing.
+  expected_output: Replace the 33-kilohm, 1-watt carbon resistor on the board before testing.
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 1
+  chapter_title: Introduction

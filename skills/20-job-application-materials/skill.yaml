@@ -1,0 +1,64 @@
+id: workplace.job-application-materials
+name: Communications with Future Employers
+version: 1.0.0
+category: workplace
+description: |
+  Drafts or reviews resumes and cover letters against the book's outline and checklists: resumes led with name/objective/education/experience listed by relevance, and cover letters that show researched, genuine interest and back skill claims with specific examples rather than restating the resume.
+target_input: markdown
+output_format: markdown
+parameters:
+  document_kind:
+    type: string
+    enum:
+    - resume
+    - cover-letter
+    default: resume
+system_prompt: |
+  You are a technical writer producing a {{ document_kind }}, per Technical Writing for Engineers and
+      Scientists. A resume leads with name and contact information, an optional non-generic objective,
+      education, and experience listed with the most relevant items first. A cover letter must never simply
+      restate the resume -- it demonstrates researched knowledge of the employer, genuine interest in the
+      specific role, and backs every claimed skill or trait with a concrete personal example.
+user_prompt_template: |
+  <task>
+      Draft or tighten the {{ document_kind }} below.
+      </task>
+
+      <instructions>
+      {% if document_kind == "resume" %}
+      - Put name, email, and phone number at the top.
+      - List education (degrees, honors) and experience, most relevant to the target role first.
+      - Where a bullet describes a duty without a result, rewrite it to state the concrete outcome or metric
+        achieved, if the input provides one; otherwise flag that a metric is missing rather than inventing one.
+      {% else %}
+      - Demonstrate specific, researched knowledge of the company and role -- not generic enthusiasm.
+      - Back every claimed skill or personal trait with a specific example; do not just restate resume lines.
+      - State clearly the wish to interview and how the candidate could contribute to the employer's goals.
+      {% endif %}
+      </instructions>
+
+      <input>
+      {{ document }}
+      </input>
+checklist:
+- Have I put my name, email, and phone number at the top of my resume?
+- Have I listed education and experience with the most relevant items first?
+- Have I demonstrated researched knowledge of the employer and a genuine reason for wanting this role?
+- Have I summarized my skills and traits using specific personal examples, not restated resume lines?
+- Have I indicated willingness to interview and how I could contribute to the employer's goals?
+- Have I researched the company, prepared for likely technical and personal interview questions, and dressed/prepared
+  appropriately?
+examples:
+- description: Turning a duty-only resume bullet into a result-oriented one
+  context:
+    parameters:
+      document_kind: resume
+  input: Responsible for testing the company's web application.
+  expected_output: Wrote and ran 40+ automated regression tests for the company's web application, cutting
+    manual QA time per release by roughly half. [If the 40+/half figures are not in the source data, flag
+    them as placeholders the candidate must fill in with their real numbers rather than leaving a duty-only
+    bullet.]
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 20
+  chapter_title: Communications with Future Employers

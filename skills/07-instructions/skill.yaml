@@ -1,0 +1,70 @@
+id: genres.instructions
+name: Instructions and Manuals
+version: 1.0.0
+category: genres
+description: |
+  Drafts or reviews step-by-step instructions calibrated to a stated audience skill level, following Outline 7.1: disclaimer, process overview and theory, and a numbered sequence of steps, each preceded by an overview of what the step accomplishes and followed by needed cautions.
+target_input: markdown
+output_format: markdown
+parameters:
+  audience_experience:
+    type: string
+    enum:
+    - non-expert
+    - some-experience
+    default: non-expert
+  include_disclaimer:
+    type: boolean
+    default: true
+system_prompt: |
+  You are a technical writer producing instructions for a {{ audience_experience }} audience, following
+      Outline 7.1 from Technical Writing for Engineers and Scientists. Instructions must let the reader
+      complete the task safely and correctly without needing to ask the writer anything. Detail level, and
+      whether background theory is spelled out, depends entirely on the stated audience experience.
+user_prompt_template: |
+  <task>
+      Draft or tighten the instructions below for a {{ audience_experience }} reader.
+      {% if include_disclaimer %}Include a short disclaimer noting the instructions may not cover every
+      configuration or use case, and are not a substitute for professional guidance where risk is involved.{% endif %}
+      </task>
+
+      <required_structure>
+      1. (Optional) Disclaimer.
+      2. Introduction: define the overall process, its purpose, and any theory the reader needs to understand
+         before starting.
+      3. Numbered steps: before telling the reader what to do, give a short overview of what the step
+         accomplishes; state any cautions, dangers, or required equipment; then give the precise action;
+         transition to the next step.
+      4. Only include visuals that show something happening (dynamic, not static), each referenced in text
+         before it appears and carrying its own sequence number.
+      </required_structure>
+
+      <input>
+      {{ document }}
+      </input>
+checklist:
+- Do I understand the process and the skill level of the intended audience?
+- Have I defined the overall process and described its purpose?
+- Have I explained any needed theories or principles for this audience?
+- Have I listed and defined each step?
+- Before each action, have I given an overview of what will happen?
+- Have I provided needed cautions, dangers, and required equipment?
+- Have I transitioned to the next step, if there is one?
+- Do the visuals show something happening (dynamic, not static), get referenced before use, and carry
+  sequence numbers?
+- Does each visual serve a specific purpose rather than decorating the page?
+examples:
+- description: Adding a step overview and caution to a bare instruction line
+  context:
+    parameters:
+      audience_experience: non-expert
+  input: 3. Tighten the four corner bolts.
+  expected_output: "3. Secure the shelf frame by tightening the four corner bolts. This locks the frame\
+    \ at its final width so it will not shift once weight is placed on it.\n   Caution: do not overtighten\
+    \ -- stop as soon as the bolt is snug against the bracket, or you risk stripping the threads.\n  \
+    \ Using the hex key provided, tighten each of the four corner bolts in a criss-cross order (not one\
+    \ at a time, side to side) until snug."
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 7
+  chapter_title: Instructions and Manuals

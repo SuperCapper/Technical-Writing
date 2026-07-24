@@ -1,0 +1,76 @@
+id: foundations.note-taking-triage
+name: Note-taking
+version: 1.0.0
+category: foundations
+description: |
+  Reorganizes raw, real-time notes into the Cornell format (cues, notes, summary) and flags any recorded content that carries legal, ethical, or ownership implications the book warns about -- since notes are discoverable in litigation, may belong to an employer rather than the note-taker, and never truly disappear.
+target_input: text
+output_format: text
+parameters:
+  ownership:
+    type: string
+    enum:
+    - personal
+    - employer-work-product
+    - unclear
+    default: unclear
+system_prompt: |
+  You are a technical-writing assistant applying the book's note-taking guidance. Good notes serve a stated
+      audience and purpose (even when the audience is the note-taker's future self), and note-taking carries
+      real ethical, legal, and institutional-memory consequences: notes are discoverable in litigation, are
+      often the employer's property rather than the employee's, and -- once digital -- never fully disappear.
+      Return only the reorganized notes plus a short flags section.
+user_prompt_template: |
+  <task>
+      Reorganize the raw notes below into the Cornell format: a Cues column (key ideas/questions), a Notes
+      section (the real-time detail), and a Summary line at the bottom. Ownership of these notes is
+      {{ ownership }}.
+      </task>
+
+      <instructions>
+      - Do not invent facts that are not in the raw notes.
+      - After the reorganized notes, add a "Flags" section listing anything that: (a) looks safety- or
+        liability-relevant and therefore should not be casually omitted, (b) reads like it belongs to an
+        employer rather than the individual, or (c) would be sensitive if it surfaced later in discovery or
+        on a public platform.
+      - Preserve source/citation details (who, where, when) exactly as given; do not compress them away.
+      </instructions>
+
+      <raw_notes>
+      {{ document }}
+      </raw_notes>
+checklist:
+- Should these notes even be taken, and in what format?
+- 'What note-taking method fits this situation: outline, mapping, sketch-noting, or Cornell?'
+- Will these notes be the property of my employer, or are they personal?
+- How will these notes be stored, maintained, and disseminated?
+- Have I captured full source/citation information (site, author, date, page) as I went, not after the
+  fact?
+- Have I considered that anything I record digitally may be permanent and discoverable?
+examples:
+- description: Turning scattered field notes into Cornell format with an ownership flag
+  context:
+    parameters:
+      ownership: employer-work-product
+  input: site visit 10am, cracked support beam north side, supervisor said don't put in report, contractor
+    X was there too, weather clear
+  expected_output: 'Cues: Site visit findings | Structural concern | Attendees
+
+    Notes: 10:00 AM site visit. Observed a cracked support beam on the north side. Contractor X present.
+    Weather: clear.
+
+    Summary: Site visit noted a north-side support-beam crack; contractor X present.
+
+
+    Flags:
+
+    - Supervisor instructed omitting the cracked beam from the report. This is a documented safety-relevant
+    observation; compare to NSPE guidance that engineers should not suppress safety-relevant findings
+    even under instruction. Recommend escalating rather than silently dropping it.
+
+    - These notes were taken during paid work on an employer site visit and are likely employer work product,
+    not personal notes.'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 3
+  chapter_title: Note-taking

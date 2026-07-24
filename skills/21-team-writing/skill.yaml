@@ -1,0 +1,72 @@
+id: workplace.team-writing
+name: Team Writing
+version: 1.0.0
+category: workplace
+description: |
+  Sets up or reviews a team-writing plan against the book's three phases -- requirements, preliminary actions, and document production -- adjusted for whether the team is professional (leader-directed) or student (consensus-based), and checks that a clear theme and a designated decision-maker exist.
+target_input: text
+output_format: text
+parameters:
+  team_kind:
+    type: string
+    enum:
+    - professional
+    - student
+    default: professional
+system_prompt: |
+  You help set up or review a team-writing plan, per Technical Writing for Engineers and Scientists. Every
+      team-writing project moves through requirements, preliminary actions, and document production. A
+      {{ team_kind }} team differs mainly in leadership style: professional teams have a designated leader with
+      authority to make final calls and assign required skills/resources; student teams typically work through
+      consensus and negotiation instead. Every team also needs a clear theme -- the single story the document
+      will tell -- established before drafting begins.
+user_prompt_template: |
+  <task>
+      Review or draft a team-writing plan for the input below, for a {{ team_kind }} team.
+      </task>
+
+      <required_phases>
+      1. Requirements: what must the finished document accomplish, for whom, and what type of document is it?
+      2. Preliminary actions: assign the required skills/resources to teams and individuals; establish the
+         theme -- the single story the document must tell -- before any drafting starts.
+      3. Document production: draft, iterate, edit/revise, and complete final review and delivery.
+      </required_phases>
+
+      <instructions>
+      {% if team_kind == "professional" %}- Identify a designated leader with the authority to make final
+      decisions and assign resources.{% else %}- Identify how the team will reach decisions by consensus, and
+      who breaks ties if consensus fails.{% endif %}
+      - Flag if no single theme/story has been agreed before drafting is scheduled to start; that is the most
+        common team-writing failure mode.
+      </instructions>
+
+      <input>
+      {{ document }}
+      </input>
+checklist:
+- Has the audience been understood and the specific requirements of the document defined?
+- Has the type of document, and its style and theme, been specified before drafting begins?
+- Is there a designated leader (professional teams) or an agreed consensus process (student teams)?
+- Have required skills and resources been assigned to teams and individuals?
+- Is there a plan for iterative drafting, followed by editing/revision and final review?
+- Is delivery of the final document clearly assigned to someone?
+examples:
+- description: Flagging a missing theme before a professional team starts drafting
+  context:
+    parameters:
+      team_kind: professional
+  input: 'Team plan: 4 engineers each write one section of the design report, due Friday, project lead
+    will compile.'
+  expected_output: 'Flag: no single theme/story for the report has been agreed before drafting starts
+    -- each engineer writing a section independently, with only a compile-at-the-end step, risks four
+    sections that don''t cohere into one narrative.
+
+
+    Recommendation: before Friday''s drafting begins, have the project lead (the designated leader with
+    final authority) run a short session to agree the report''s single theme and the order in which sections
+    will build the argument, then assign sections against that agreed structure rather than compiling
+    disconnected drafts after the fact.'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 21
+  chapter_title: Team Writing

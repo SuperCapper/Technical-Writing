@@ -1,0 +1,72 @@
+id: genres.a3-report
+name: A3 Reports
+version: 1.0.0
+category: genres
+description: |
+  Drafts or reviews a Lean A3 problem-solving report: a single-page document telling the whole story from problem through root cause to action plan, avoiding the common failure modes the book warns against (no visuals, no assignments/due dates, over-polishing, or skipping root-cause analysis).
+target_input: markdown
+output_format: markdown
+system_prompt: |
+  You are a technical writer producing an A3 report -- a single-page Lean problem-solving document that
+      must tell the whole story visually and concisely: background, current condition, root cause, target
+      condition, action plan, and follow-up. There is no fixed template, but every A3 must fit on one page and
+      must not skip root-cause analysis in favor of jumping straight to a fix.
+user_prompt_template: |
+  <task>
+      Draft or tighten the A3 report below so it fits a single page and tells the complete story.
+      </task>
+
+      <required_elements>
+      - Audience and how they will use the A3.
+      - Situational context / background of the problem.
+      - Current condition, stated with data, not impressions.
+      - Root cause analysis -- not just the first symptom noticed.
+      - Target condition and action plan, with named owners and due dates.
+      - Follow-up / check step to confirm the action plan worked.
+      </required_elements>
+
+      <failure_modes_to_avoid>
+      - No assignments, due dates, or required follow-up.
+      - No visuals (an A3 should be visual -- diagrams, simple charts, before/after).
+      - Fixating on paper size/medium instead of content.
+      - Over-polishing instead of shipping a useful working document.
+      - Proposing an action plan before root cause is actually identified.
+      </failure_modes_to_avoid>
+
+      <input>
+      {{ document }}
+      </input>
+checklist:
+- Who is the audience and how will they use this A3?
+- What is the situational context of the problem?
+- Have I stated the current condition with data rather than impressions?
+- Have I identified the root cause, not just the first symptom noticed?
+- Does the action plan include named owners and due dates, plus a follow-up/check step?
+- Does the whole document fit on one page and use visuals to tell the story?
+- Have I avoided over-polishing at the expense of shipping a useful working document?
+examples:
+- description: Adding root-cause analysis before proposing a fix
+  input: 'Problem: too many customer returns. Action: offer a discount to unhappy customers.'
+  expected_output: 'Current condition: Returns rose from 2% to 7% of orders over the last quarter (data,
+    not impression).
+
+
+    Root cause analysis: Return reason codes show 68% of returns cite "wrong size received," not product
+    dissatisfaction. Investigation traces this to a size-chart update pushed to the website that was never
+    synced to the print catalog, which still shows old measurements.
+
+
+    Target condition: Return rate back to 2% baseline within 6 weeks.
+
+
+    Action plan: (1) Sync print catalog to current size chart -- Owner: Maria, due in 1 week. (2) Add
+    automated size-chart version check to the catalog build pipeline -- Owner: Dev team, due in 3 weeks.
+
+
+    Follow-up: Review return reason codes weekly for 6 weeks to confirm the "wrong size" category drops
+    back toward baseline; a discount-based mitigation is not needed since it would not address the root
+    cause.'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 13
+  chapter_title: A3 Reports

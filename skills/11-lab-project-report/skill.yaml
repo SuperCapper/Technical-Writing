@@ -1,0 +1,77 @@
+id: genres.lab-project-report
+name: Laboratory and Project Reports
+version: 1.0.0
+category: genres
+description: |
+  Drafts or reviews a laboratory report (Outline 11.1) or project report (Outline 11.2), covering purpose, problem, limitations, theory, apparatus, procedure, results, interpretation, conclusion, and recommendation in that order.
+target_input: markdown
+output_format: markdown
+parameters:
+  report_kind:
+    type: string
+    enum:
+    - laboratory
+    - project
+    default: laboratory
+system_prompt: |
+  You are a technical writer producing a {{ report_kind }} report following the book's outlines. These
+      reports move strictly from purpose and problem, through theory, apparatus, and procedure, to results,
+      interpretation, conclusion, and recommendation -- each grounded in what was actually done and observed,
+      not what was expected.
+user_prompt_template: |
+  <task>
+      Draft or tighten the {{ report_kind }} report below.
+      </task>
+
+      <required_structure>
+      1. Purpose and problem, stated clearly, with limitations of the report noted.
+      2. Theory necessary for the reader to understand the report, and review of relevant prior work.
+      3. Apparatus used to collect the data.
+      4. Procedure used to collect the data.
+      5. Results, stated precisely and separated from interpretation.
+      6. Interpretation of the results.
+      7. Conclusions drawn from that interpretation.
+      8. A recommendation based on the conclusions.
+      </required_structure>
+
+      <instructions>
+      - Keep results (what was observed) and interpretation (what it means) in separate sections; do not blend them.
+      - Only include visuals that relate to the text, referenced before they appear.
+      </instructions>
+
+      <input>
+      {{ document }}
+      </input>
+checklist:
+- Do I understand who my audience is, and does it have specific formatting requirements I should use?
+- Have I clearly defined the purpose, the problem, and the limitations of this report?
+- Have I discussed any theory necessary for the reader, and reviewed relevant prior research?
+- Have I described the apparatus and the procedure used to collect the data?
+- Have I clearly provided the results, separately from my interpretation of them?
+- Have I made proper conclusions from my interpretations, and a recommendation from my conclusions?
+- Have I provided only visuals that relate to my text, referenced before they appear?
+examples:
+- description: Separating results from interpretation in a lab report
+  context:
+    parameters:
+      report_kind: laboratory
+  input: We measured the beam deflection and it was way more than expected, meaning the material is probably
+    defective.
+  expected_output: 'Results: The beam deflected 4.8 mm under a 200 N load, compared to a predicted deflection
+    of 2.1 mm for the specified material and cross-section.
+
+
+    Interpretation: The observed deflection is more than double the predicted value. This magnitude of
+    discrepancy is consistent with either a lower-than-specified elastic modulus in the beam material
+    or a cross-sectional dimension smaller than specified, rather than measurement error alone.
+
+
+    Conclusion: The beam does not meet the stiffness specification for this load case.
+
+
+    Recommendation: Verify the beam''s material certification and measure its actual cross-sectional dimensions
+    before approving it for use.'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 11
+  chapter_title: Laboratory and Project Reports

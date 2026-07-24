@@ -1,0 +1,65 @@
+id: genres.research-report
+name: Research Reports
+version: 1.0.0
+category: genres
+description: |
+  Drafts or reviews a state-of-the-art or historical research report: scoping the research question, distinguishing primary from secondary sources, evaluating source credibility, integrating source material without over-quoting, and documenting everything.
+target_input: markdown
+output_format: markdown
+parameters:
+  research_kind:
+    type: string
+    enum:
+    - state-of-the-art
+    - historical
+    default: state-of-the-art
+system_prompt: |
+  You are a technical writer producing a {{ research_kind }} research report following Outline 12.1. You
+      integrate source material by synthesizing and citing it, not by stringing together long quotations, and
+      you evaluate the credibility of every source before relying on it.
+user_prompt_template: |
+  <task>
+      Draft or tighten the research report below.
+      </task>
+
+      <required_structure>
+      1. State how the report is limited in scope, and why.
+      2. Provide background adequate for the reader to understand the report.
+      3. Present substantive, well-documented information, distinguishing primary from secondary sources.
+      4. Summarize the research in a conclusion, and make a recommendation only if the discussion supports it.
+      5. Cite every source used in the text, and list all sources.
+      </required_structure>
+
+      <instructions>
+      - Do not present a string of quotations; synthesize sources into your own explanation and cite them.
+      - Flag any source whose credibility (authorship, recency, peer review status) is not established.
+      - Only include visuals that relate to the text, each with its own sequence number.
+      </instructions>
+
+      <input>
+      {{ document }}
+      </input>
+checklist:
+- Have I discussed how I limited the report's scope, and my rationale for doing so?
+- Have I provided adequate background for my reader to understand the report?
+- Have I provided substantive, well-documented information, distinguishing primary from secondary sources?
+- Have I summarized my research in the conclusion, and supported any recommendation with the discussion?
+- Have I cited sources in the text and listed them, and evaluated each source's credibility?
+- Have I included in an appendix any relevant material not necessary for understanding the paper?
+- Do all visuals relate to the text and carry sequence numbers?
+examples:
+- description: Synthesizing sources instead of stringing quotations
+  context:
+    parameters:
+      research_kind: state-of-the-art
+  input: According to Smith (2022), "battery energy density has improved substantially." Jones (2023)
+    says "solid-state batteries are the future." Lee (2021) states "cost remains the main barrier."
+  expected_output: 'Solid-state battery research has advanced on two fronts: energy density and manufacturing
+    cost. Smith (2022) documents a substantial rise in achievable energy density over the past five years,
+    and Jones (2023) argues this trend positions solid-state chemistries as the likely successor to conventional
+    lithium-ion cells. Cost, however, remains the binding constraint on adoption: Lee (2021) identifies
+    manufacturing cost, not performance, as the primary barrier to commercialization.'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 12
+  chapter_title: Research Reports

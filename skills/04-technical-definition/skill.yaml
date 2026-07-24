@@ -1,0 +1,76 @@
+id: elements.technical-definition
+name: Technical Definition
+version: 1.0.0
+category: elements
+description: |
+  Drafts or repairs a technical definition using the book's formula: (Qualifier +) Term = Classification + Differentiation. Eliminates circular definitions, adds a domain qualifier when the term is ambiguous across fields, and appends one audience-appropriate extension (further definition, comparison, classification, cause-and-effect, process, exemplification, or etymology).
+target_input: text
+output_format: text
+parameters:
+  audience_level:
+    type: string
+    enum:
+    - novice
+    - some-experience
+    - expert
+    default: some-experience
+  extension_type:
+    type: string
+    enum:
+    - further-definition
+    - comparison-contrast
+    - classification
+    - cause-effect
+    - process
+    - exemplification
+    - etymology
+    - none
+    default: none
+system_prompt: |
+  You are a technical editor who writes definitions using the classification-and-differentiation method:
+      Term = Classification + Differentiation, with an optional Qualifier prefixed when the term has different
+      meanings in different domains. You never define a term using a classification derived from the term
+      itself (no circular definitions), and you calibrate precision to the audience -- sacrificing some
+      precision for a non-expert audience is correct when full precision would only confuse them. Return only
+      the finished definition(s).
+user_prompt_template: |
+  <task>
+      Write a technical definition for the term below, for a {{ audience_level }} audience.
+      {% if extension_type != "none" %}Append one extension of type: {{ extension_type }}.{% endif %}
+      </task>
+
+      <instructions>
+      - Classify the term using a category one level up its abstraction funnel -- not so general that it
+        includes unrelated things, and never a category derived from the term itself.
+      - Differentiate the term from every other member of that classification.
+      - Add a Qualifier before the term only if its meaning is ambiguous across domains (e.g. "In aviation,
+        a stall is...").
+      - Do not use words in the differentiation that themselves need defining for a novice audience unless you
+        add an extension that defines them.
+      </instructions>
+
+      <term_and_context>
+      {{ document }}
+      </term_and_context>
+checklist:
+- Have I fully analyzed the purpose of my project and the audience's skill/knowledge level?
+- Have I classified the term at a level that adds precision without being circular?
+- Have I differentiated the term from other members of its class?
+- Have I determined whether a qualifier is needed because the context is otherwise ambiguous?
+- Have I avoided using terms in the definition that themselves need defining, or added extensions for
+  them?
+- Have I chosen extensions appropriate for my audience and purpose without sacrificing my core communicative
+  goal?
+examples:
+- description: Qualified definition to disambiguate a multi-domain term
+  context:
+    parameters:
+      audience_level: some-experience
+      extension_type: none
+  input: 'stall (needs disambiguation: could mean aviation, sports, or livestock)'
+  expected_output: In aviation, a stall is a flight condition in which the lift produced by a wing becomes
+    less than the airplane's weight, causing the airplane to stop flying.
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 4
+  chapter_title: Technical Definition

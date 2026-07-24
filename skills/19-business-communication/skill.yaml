@@ -1,0 +1,60 @@
+id: workplace.business-communication
+name: Business Communication
+version: 1.0.0
+category: workplace
+description: |
+  Drafts or reviews email, memoranda, and letters against the book's outlines and formatting conventions (block/modified-block letters, transmittal letters, letters for the record), and flags messages that should not be sent by email at all -- negative, sensitive, or easily-misinterpreted content belongs in a face-to-face conversation or phone call instead.
+target_input: markdown
+output_format: markdown
+parameters:
+  medium:
+    type: string
+    enum:
+    - email
+    - memo
+    - letter
+    - instant-message
+    default: email
+system_prompt: |
+  You are a technical writer producing a {{ medium }}, per Technical Writing for Engineers and Scientists.
+      You know when NOT to write: negative messages, highly sensitive content, or anything at real risk of
+      being misinterpreted is better handled face-to-face or by phone than in writing. When the medium is
+      appropriate, you follow its expected format and avoid the "data dump" failure mode of a single dense
+      paragraph.
+user_prompt_template: |
+  <task>
+      Draft or tighten the {{ medium }} below.
+      </task>
+
+      <instructions>
+      - If the content is negative, highly sensitive, or likely to be misread in writing, say so explicitly
+        and recommend a face-to-face conversation or phone call instead of producing a written draft.
+      - Otherwise, format per {{ medium }} conventions: a letter uses block or modified-block format with a
+        clear addressee and signature block; a memo states purpose up front; an email states its ask early and
+        avoids becoming a single dense paragraph.
+      - Verify (or flag for the user to verify) that only the proper recipients are addressed.
+      </instructions>
+
+      <input>
+      {{ document }}
+      </input>
+checklist:
+- Have I verified that only the proper people will receive this message?
+- Have I considered whether this message needs to be sent right now?
+- Is this message negative? If so, have I reconsidered whether writing is the right medium at all?
+- Have I proofread it, and would it likely be misinterpreted -- if so, should this be a conversation instead?
+- For letters/memos, have I used the expected format (block/modified-block) and signed or initialed it?
+- For instant messaging, have I followed accepted platform behaviors (no all-caps, appropriate length)?
+examples:
+- description: Recommending a phone call instead of a written negative message
+  input: 'Email draft to a vendor: "We are terminating the contract effective immediately due to repeated
+    missed deadlines and will be pursuing the penalty clause."'
+  expected_output: 'This is a negative, high-stakes message with real risk of being misread in writing
+    (tone, intent, and next steps are easy to misinterpret over email). Recommend a phone call or face-to-face
+    meeting to deliver this first, followed by a short, neutral written confirmation afterward if a paper
+    trail is still needed -- e.g. "Confirming our call today: we are ending the contract effective [date]
+    per section [X] of the agreement."'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 19
+  chapter_title: Business Communication

@@ -1,0 +1,71 @@
+id: genres.abstract-summary
+name: Abstracts and Summaries
+version: 1.0.0
+category: genres
+description: |
+  Writes a descriptive or informative abstract, or an academic or executive summary, following the book's distinctions: abstracts are compressed stand-ins for a paper aimed at the same audience, while summaries -- especially executive summaries -- are first-person, stand-alone documents in their own right.
+target_input: text
+output_format: text
+parameters:
+  output_kind:
+    type: string
+    enum:
+    - descriptive-abstract
+    - informative-abstract
+    - academic-summary
+    - executive-summary
+    default: informative-abstract
+  word_limit:
+    type: integer
+    default: 250
+system_prompt: |
+  You write {{ output_kind }}s per Technical Writing for Engineers and Scientists. A descriptive abstract
+      tells the reader what topics a paper covers without giving results; an informative abstract gives the
+      actual findings and conclusions. An academic summary condenses a source's argument in the summarizer's
+      own words, in the source's original order, without a mechanical "first, second, next" structure. An
+      executive summary is a first-person, stand-alone document that tells the whole story on its own, without
+      requiring the reader to open the full report.
+user_prompt_template: |
+  <task>
+      Write a {{ output_kind }} of the material below, no longer than {{ word_limit }} words.
+      </task>
+
+      <instructions>
+      - Use original phrasing; do not quote the source directly.
+      - Do not exceed the word limit.
+      {% if output_kind == "informative-abstract" %}- Include the paper's main findings and conclusions, not just its topics.{% endif %}
+      {% if output_kind == "descriptive-abstract" %}- Describe only what the paper covers; do not reveal specific findings or conclusions.{% endif %}
+      {% if output_kind == "academic-summary" %}- Preserve the original's idea order; do not use a mechanical first/second/next structure. Explain how the main argument is supported.{% endif %}
+      {% if output_kind == "executive-summary" %}- Write in first person, as a stand-alone document requiring no access to the full report.{% endif %}
+      - Include carefully chosen keywords if this is an abstract intended for indexing.
+      </instructions>
+
+      <source_material>
+      {{ document }}
+      </source_material>
+checklist:
+- Do I understand who my audience is, and the purpose and context of this abstract or summary?
+- Have I been given (or inferred) specific formulation requirements, such as word count?
+- Have I met the word-count requirement and structured it to meet descriptive vs. informative expectations?
+- Have I included all main ideas and limitations from the source, in original phrasing (no quotations)?
+- For an academic summary, have I preserved the source's idea order and explained how the argument is
+  supported?
+- For an executive summary, have I written a first-person, stand-alone document and told the whole story?
+- Have I included keywords that will inform both human evaluators and search/indexing algorithms?
+examples:
+- description: Informative abstract vs. descriptive abstract of the same paper
+  context:
+    parameters:
+      output_kind: informative-abstract
+      word_limit: 60
+  input: A study testing three insulation materials at -40C found aerogel outperformed fiberglass and
+    foam by 30% in heat retention, and recommends aerogel for arctic equipment housings despite its higher
+    cost.
+  expected_output: This report compares three insulation materials -- aerogel, fiberglass, and foam --
+    for arctic equipment housings tested at -40C. Aerogel retained heat 30% better than the other two
+    materials. Despite its higher cost, the report recommends aerogel for arctic equipment applications
+    where heat retention is the dominant design constraint.
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 14
+  chapter_title: Abstracts and Summaries

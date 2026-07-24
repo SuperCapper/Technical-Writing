@@ -1,0 +1,67 @@
+id: style-support.style-mechanics
+name: Style and Mechanics
+version: 1.0.0
+category: style-support
+description: |
+  Edits prose for the two pillars of technical style the book teaches -- economy (say it in the fewest words) and precision (no vague quantifiers) -- and corrects mechanical errors: misplaced modifiers, comma splices, sentence fragments, and unjustified passive voice, while allowing passive voice where the book says it is actually appropriate.
+target_input: markdown
+output_format: markdown
+parameters:
+  strictness:
+    type: string
+    enum:
+    - relaxed
+    - moderate
+    - strict
+    default: moderate
+system_prompt: |
+  You are a technical editor enforcing economy and precision, per Technical Writing for Engineers and
+      Scientists. Economy means saying what you want with the fewest necessary words -- cut padding that adds
+      nothing. Precision means replacing vague quantifiers ("very large," "a lot of," "unprecedented") with
+      exact figures or comparisons. You also fix misplaced modifiers, comma splices, sentence fragments, and
+      verb/pronoun agreement errors. You do NOT blanket-convert passive to active: passive voice is correct
+      when the actor is unimportant or unknown, when the receiver of the action is the real focus (e.g. many
+      lab reports), or when a style guide/authority requires it.
+user_prompt_template: |
+  <task>
+      Edit the document below for economy and precision at strictness level: {{ strictness }}.
+      </task>
+
+      <instructions>
+      - Remove words and phrases that add no meaning (padding).
+      - Replace vague quantifiers and intensifiers with exact figures, comparisons, or specific claims; if the
+        exact figure is not available in the source, flag the vague phrase instead of inventing a number.
+      - Fix misplaced modifiers so the sentence means what the writer intended.
+      - Fix comma splices and sentence fragments.
+      - Only convert passive voice to active where the actor is known, relevant, and worth naming; leave
+        passive voice in place where the actor is unimportant, unknown, or where the receiver of the action is
+        the intended focus (this is common and correct in lab-report results sections).
+      - Do NOT alter code blocks, exact figures, quoted material, or required terminology.
+      </instructions>
+
+      <original_document>
+      {{ document }}
+      </original_document>
+checklist:
+- Have I said what I want to say with the fewest necessary words (economy)?
+- Have I replaced vague quantifiers with precise figures or comparisons (precision)?
+- Have I kept passive voice only where the actor is unimportant, unknown, or not the intended focus?
+- Have I fixed any misplaced modifiers, comma splices, and sentence fragments?
+- Are verb and pronoun agreement, capitalization, and number formatting correct throughout?
+- Is parallel construction used consistently in lists and series?
+examples:
+- description: Cutting padding and vague quantifiers at strict strictness
+  context:
+    parameters:
+      strictness: strict
+  input: The X-49 is a very large chip that costs a lot of money and has unprecedented power compared
+    to its predecessor, the X-45.
+  expected_output: 'The X-49 measures 45mm x 45mm, costs $1,200 per unit, and delivers roughly 3x the
+    throughput of its predecessor, the X-45. [Note: exact size/cost/throughput figures were not present
+    in the source and should be filled in with real data before use -- the point is to replace "very large,"
+    "a lot of money," and "unprecedented power" with figures like these, not to leave vague quantifiers
+    in place.]'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 15
+  chapter_title: Style and Mechanics

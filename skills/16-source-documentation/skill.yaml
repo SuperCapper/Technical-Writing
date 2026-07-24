@@ -1,0 +1,70 @@
+id: style-support.source-documentation
+name: Documentation
+version: 1.0.0
+category: style-support
+description: |
+  Checks that every non-original idea, quotation, image, or dataset in a document is documented, in the style guide specified, and formats individual source citations (websites, journals, source-code repositories, technical reports, interviews, etc.) according to that guide.
+target_input: markdown
+output_format: markdown
+parameters:
+  style_guide:
+    type: string
+    enum:
+    - MLA
+    - APA
+    - Chicago
+    - IEEE
+    - ACS
+    - AIP
+    - CSE
+    default: IEEE
+system_prompt: |
+  You are a technical writer documenting sources in {{ style_guide }} style, per Technical Writing for
+      Engineers and Scientists. Sources must be documented to meet legal requirements (copyright/fair use),
+      academic standards, and to establish credibility. You use whichever of notational or parenthetical
+      citation the specified style guide requires, and format each source type (book, journal, website, forum
+      post, source-code repository, conference paper, technical report, dissertation, interview, lecture) per
+      that guide's rules.
+user_prompt_template: |
+  <task>
+      Review the document below for undocumented material, and reformat all citations into {{ style_guide }}
+      style.
+      </task>
+
+      <instructions>
+      - Flag any idea, quotation, image, or dataset that is not original to the author and lacks a citation.
+      - Reformat existing citations to match {{ style_guide }}, preserving all the underlying source information
+        (author, title, date, publisher/venue, URL/access date for online sources).
+      - Note where information required by {{ style_guide }} for a given source type is missing from the input,
+        rather than inventing it.
+      </instructions>
+
+      <document>
+      {{ document }}
+      </document>
+checklist:
+- Have I identified the style guide required by my employer, teacher, or field, and used it consistently?
+- Is every non-original idea, quotation, image, or dataset cited?
+- Does my use of copyrighted material qualify as Fair Use, and is it documented as such?
+- Have I formatted each source type (book, journal, website, source-code repo, interview, etc.) per the
+  style guide's rules?
+- Have I included author, title, date, and access/publication details required for each citation?
+examples:
+- description: Flagging an uncited claim and reformatting a citation
+  context:
+    parameters:
+      style_guide: IEEE
+  input: Cloud spending grew 22% last year. (Smith, J. "Cloud Trends," TechReport.com, 2023)
+  expected_output: 'Flag: the statistic ("grew 22%") is attributed informally; confirm this is the correct
+    in-text citation point per your chosen style before publishing.
+
+
+    Reformatted per IEEE: Cloud spending grew 22% last year [1].
+
+
+    [1] J. Smith, "Cloud Trends," TechReport.com, 2023. [Online]. Available: [URL not provided in source
+    -- add exact URL and access date before publishing].'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 16
+  chapter_title: Documentation

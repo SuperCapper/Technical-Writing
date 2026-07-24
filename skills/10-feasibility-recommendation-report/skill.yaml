@@ -1,0 +1,77 @@
+id: genres.feasibility-recommendation-report
+name: Feasibility and Recommendation Reports
+version: 1.0.0
+category: genres
+description: |
+  Drafts or reviews a feasibility report (assessing whether options are viable against measurable criteria) or a recommendation report (going further to recommend one option), following Outlines 10.1 and 10.2 and ensuring criteria are explained, weighted, and backed by objective data.
+target_input: markdown
+output_format: markdown
+parameters:
+  report_kind:
+    type: string
+    enum:
+    - feasibility
+    - recommendation
+    default: recommendation
+system_prompt: |
+  You are a technical writer producing a {{ report_kind }} report following the book's outlines. Both
+      report types define a problem and assess options against explicit, weighted, measurable criteria backed
+      by objective data. A recommendation report goes one step further than a feasibility report by
+      recommending a specific option based on the interpreted data.
+user_prompt_template: |
+  <task>
+      Draft or tighten the {{ report_kind }} report below.
+      </task>
+
+      <required_structure>
+      1. Problem definition, detailed enough that the requirements for solving it are clear.
+      2. A manageable number of viable candidate solutions.
+      3. Criteria: explained, including why each was selected and how much weight it carries.
+      4. Objective, meaningful data collected for each criterion, with clear interpretation and summary.
+      5. Visualizations comparing the alternatives.
+      6. Conclusion drawn from the interpreted data.
+      {% if report_kind == "recommendation" %}7. A specific recommendation based on that conclusion.{% endif %}
+      8. A contact for more information, and documentation of sources used.
+      </required_structure>
+
+      <input>
+      {{ document }}
+      </input>
+checklist:
+- Do I understand what my audience wants, needs, and values?
+- Do I understand how this report will be used -- its purpose?
+- Have I defined the problem with enough detail that the requirements for solving it are clear?
+- Have I selected a manageable number of viable candidate solutions?
+- Have I developed criteria that relate to the problem, explaining why each was selected and its weight?
+- For all criteria, have I collected objective, meaningful data and interpreted it clearly?
+- Have I included visualizations of the alternatives and a conclusion drawn from the interpretations?
+- Have I made a recommendation based on that conclusion (recommendation reports only)?
+- Have I included a contact for more information and documented my sources?
+examples:
+- description: Turning an unweighted comparison into criteria-based analysis
+  context:
+    parameters:
+      report_kind: recommendation
+  input: 'Comparing Vendor A and Vendor B for a new CRM: A is cheaper, B has better support.'
+  expected_output: 'Criteria: (1) total 3-year cost (weight: 40%, because budget is the primary constraint
+    this year), (2) support responsiveness measured by median ticket response time (weight: 35%, because
+    our team has no in-house CRM admin), (3) integration with our existing billing system (weight: 25%).
+
+
+    Vendor A: 3-year cost $42,000; median support response 26 hours; native billing integration available.
+
+    Vendor B: 3-year cost $58,000; median support response 3 hours; billing integration requires a $6,000
+    custom connector.
+
+
+    Interpretation: Vendor A is materially cheaper even after accounting for the connector cost gap, but
+    its support response time is nearly 9x slower than Vendor B''s, which is a significant risk given
+    we have no in-house CRM administrator to triage issues ourselves.
+
+
+    Recommendation: Select Vendor B. The support-responsiveness gap outweighs the cost difference given
+    our team''s lack of in-house CRM expertise.'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 10
+  chapter_title: Feasibility and Recommendation Reports

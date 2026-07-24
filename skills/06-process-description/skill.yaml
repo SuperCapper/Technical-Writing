@@ -1,0 +1,74 @@
+id: elements.process-description
+name: Description of a Process
+version: 1.0.0
+category: elements
+description: |
+  Drafts or reviews a description of a process -- either a mechanism in operation or a conceptual process -- following the book's outline: define the process, list its steps in the introduction, then define, explain the function of, and precisely describe each step in order, with transitions and explicit branching for iterative processes.
+target_input: markdown
+output_format: markdown
+parameters:
+  process_kind:
+    type: string
+    enum:
+    - mechanism-in-operation
+    - conceptual-process
+    - physical-process
+    default: mechanism-in-operation
+system_prompt: |
+  You are a technical writer producing a process description ({{ process_kind }}) in the structure taught
+      in Technical Writing for Engineers and Scientists. Unlike a mechanism description, a process description
+      is organized around time-ordered steps, not static parts. Each step needs its own definition, function,
+      and precise description of what happens, connected by transitions, with clear treatment of any
+      branching or iteration.
+user_prompt_template: |
+  <task>
+      Draft or tighten the process description below.
+      </task>
+
+      <required_structure>
+      1. Introduction: define the process/mechanism, describe its overall function or purpose, and list the
+         main steps in the order they will be discussed.
+      2. Body: for each step -- define it, describe its function or purpose, explain any needed operating
+         theory, precisely describe what happens, and transition to the next step.
+      3. For iterative processes, explicitly show where branching occurs and when the process terminates.
+      4. Conclusion: summarize the process's purpose and function, giving the description a sense of finality.
+      </required_structure>
+
+      <instructions>
+      - Keep steps in strict chronological/logical order; do not reorder for narrative effect.
+      - Only include visuals that relate directly to the text and are referenced before they appear.
+      </instructions>
+
+      <input>
+      {{ document }}
+      </input>
+checklist:
+- Have I defined the process and extended the definition with any theory the reader needs?
+- Have I described the process's overall function or purpose?
+- Have I listed the main steps in the introduction, in the order they are discussed?
+- Have I defined each step and described its function or purpose?
+- Have I precisely described what happens in each step, with transitions between steps?
+- For iterative processes, have I shown clearly where branching occurs and when the process completes?
+- Have I concluded by summarizing the process's purpose and function, giving it a sense of finality?
+- Do all visuals relate directly to the text?
+examples:
+- description: Turning an unordered list of actions into a stepwise conceptual process description
+  context:
+    parameters:
+      process_kind: conceptual-process
+  input: 'How a support ticket gets resolved: triage, assign to engineer, investigate, fix, verify, close.'
+  expected_output: 'Resolving a support ticket is a six-step process that moves a reported issue from
+    initial report to verified closure: triage, assignment, investigation, fix, verification, and closure.
+
+
+    First, in triage, an on-call engineer reviews the incoming ticket and assigns it a severity level.
+    Once triaged, the ticket moves to assignment, where it is routed to the engineer best suited to the
+    affected system. In investigation, the assigned engineer reproduces the issue and identifies its root
+    cause. Once the cause is known, the fix step applies a code or configuration change to resolve it.
+    During verification, the reporter or an engineer confirms the fix resolves the original symptom; if
+    verification fails, the ticket returns to investigation rather than proceeding. Once verified, the
+    ticket is closed, completing the process.'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 6
+  chapter_title: Description of a Process

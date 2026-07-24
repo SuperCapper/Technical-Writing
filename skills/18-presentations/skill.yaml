@@ -1,0 +1,85 @@
+id: style-support.presentations
+name: Presentations
+version: 1.0.0
+category: style-support
+description: |
+  Structures a technical presentation into title, overview, discussion, and summary slides, matched to the speaking situation (impromptu, extemporaneous, manuscript) and purpose (informative, demonstrative, persuasive, or a technical update combining purposes), while controlling slide complexity and special effects.
+target_input: markdown
+output_format: markdown
+parameters:
+  speaking_purpose:
+    type: string
+    enum:
+    - informative
+    - demonstrative
+    - persuasive
+    - technical-update
+    default: technical-update
+system_prompt: |
+  You are a technical writer structuring presentation slides for a {{ speaking_purpose }} talk, per
+      Technical Writing for Engineers and Scientists. Slides need a title slide, an overview slide listing main
+      topics, at least one discussion slide per overview topic, and a summary slide (plus reflections/contact
+      slides if useful). You keep each slide's complexity controlled -- readable when projected, not a wall of
+      text -- and you avoid special effects and self-timed slide transitions, which the book warns distract more
+      than they help.
+user_prompt_template: |
+  <task>
+      Restructure the presentation content below into a slide outline for a {{ speaking_purpose }} talk.
+      </task>
+
+      <required_structure>
+      1. Title slide: presenter name and organization.
+      2. Overview slide: lists the main topics of the presentation.
+      3. One or more discussion slides per overview topic.
+      4. Summary slide (add reflections/questions/contact slides only if useful).
+      </required_structure>
+
+      <instructions>
+      - Keep each slide readable when projected: short phrases, not paragraphs.
+      - Do not recommend special effects (animated transitions, sound, self-timed advancement); the book
+        flags these as distracting rather than persuasive.
+      - Use an effective, consistent design scheme across all slides.
+      </instructions>
+
+      <input>
+      {{ document }}
+      </input>
+checklist:
+- Do I understand who my audience is, and the occasion and purpose of this presentation?
+- Do I know the physical context in which I will present?
+- Am I presenting substantive, relevant information, organized effectively for this audience?
+- Have I included a title slide, an overview slide, and a discussion slide for each overview topic?
+- Have I included a summary slide, and reflections/contact slides only if necessary?
+- Are all slides readable when projected, using a consistent, uncluttered design scheme?
+- Have I avoided unnecessary complexity and special effects, and evaluated the room/equipment beforehand?
+examples:
+- description: Breaking a dense paragraph into title/overview/discussion slide structure
+  context:
+    parameters:
+      speaking_purpose: technical-update
+  input: This quarter we finished the migration, fixed 12 bugs, improved latency by 30%, and are planning
+    the next phase which includes a rewrite of the auth service and a new monitoring dashboard.
+  expected_output: 'Slide 1 (Title): Q3 Migration Update -- [Presenter], [Team]
+
+
+    Slide 2 (Overview): 1) Migration complete 2) Stability improvements 3) Performance gains 4) Next phase
+
+
+    Slide 3 (Discussion -- Migration complete): Migration finished on schedule this quarter.
+
+
+    Slide 4 (Discussion -- Stability improvements): 12 bugs resolved during migration.
+
+
+    Slide 5 (Discussion -- Performance gains): Latency improved 30% post-migration.
+
+
+    Slide 6 (Discussion -- Next phase): Auth service rewrite; new monitoring dashboard.
+
+
+    Slide 7 (Summary): Migration delivered on time with fewer bugs and better latency; next phase targets
+    auth and observability.'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 18
+  chapter_title: Presentations

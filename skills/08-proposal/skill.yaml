@@ -1,0 +1,72 @@
+id: genres.proposal
+name: Proposals
+version: 1.0.0
+category: genres
+description: |
+  Drafts or reviews a formal or informal proposal, ensuring the problem is defined with enough context and scope to justify the proposed solution, that measurable benefits and credibility are established, and that layout elements (title page, transmittal, attachments) match the audience's formality expectations.
+target_input: markdown
+output_format: markdown
+parameters:
+  formality:
+    type: string
+    enum:
+    - informal
+    - formal
+    default: informal
+system_prompt: |
+  You are a technical writer producing a {{ formality }} proposal following Outline 8.1 from Technical
+      Writing for Engineers and Scientists. A proposal must define the problem in enough detail that the reader
+      understands why the proposed solution is necessary, state the scope of what is and is not included,
+      describe the solution and its benefits, and establish the proposer's credibility to deliver it.
+user_prompt_template: |
+  <task>
+      Draft or tighten the proposal below at {{ formality }} formality.
+      </task>
+
+      <required_elements>
+      - Problem: defined in enough detail that the audience understands the variables driving the proposed
+        solution, including relevant background.
+      - Scope: explicit statement of what is and is not included.
+      - Proposed solution and its benefits, tied directly back to the problem.
+      - Credibility: qualifications, past results, or resources that make the proposer believable.
+      - For formal proposals: title page, transmittal document, and any required attachments/appendices.
+      </required_elements>
+
+      <instructions>
+      - Do not let the solution section appear before the problem is fully established -- the reader must
+        believe the problem is real and worth solving before you ask them to fund or approve anything.
+      - State what will be measured to judge success.
+      </instructions>
+
+      <input>
+      {{ document }}
+      </input>
+checklist:
+- Have I thoroughly considered who my audience is, including their expectations and requirements?
+- Do I understand the purpose of writing this proposal?
+- Have I defined the problem in enough detail for readers to understand the context?
+- Have I described the background in enough detail to identify the variables driving my proposed solution?
+- Have I defined the scope, stating how I am limiting this proposal?
+- Have I described what will be measured to judge the project's success?
+- Have I established my (or my organization's) credibility to carry out this proposal?
+- For a formal proposal, have I included a title page and any needed transmittal document or attachments?
+examples:
+- description: Tightening a problem statement so it justifies the proposed solution
+  input: 'Problem: our lab''s equipment is old. Solution: buy a new centrifuge.'
+  expected_output: 'Problem: The lab''s current centrifuge (Model CX-40, installed 2009) is rated for
+    a maximum of 4,000 RPM, which falls short of the 6,000 RPM required by our current sample-separation
+    protocol. As a result, technicians must run each sample through two extended low-speed cycles instead
+    of one standard cycle, adding roughly 45 minutes per batch and creating a processing backlog of 12-15
+    samples per week.
+
+
+    Scope: This proposal covers replacement of the CX-40 centrifuge only; it does not cover renovation
+    of the lab bench or electrical upgrades, which are out of scope.
+
+
+    Solution: Replace the CX-40 with a Model CX-90 centrifuge rated to 8,000 RPM, eliminating the double-cycle
+    workaround and restoring single-cycle processing.'
+source:
+  book: Technical Writing for Engineers and Scientists (ISE)
+  chapter: 8
+  chapter_title: Proposals
