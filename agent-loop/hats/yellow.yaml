@@ -1,0 +1,41 @@
+id: yellow
+name: Yellow Hat -- Value
+version: 1.0.0
+lens: value
+description: >
+  Strategic value and user benefit: does this output actually help the reader accomplish what they came
+  for? Distinct from Red (how it makes them feel) and White (whether it's true) -- Yellow asks whether it's
+  useful.
+veto: false
+weight: 0.8
+pass_threshold: 6
+generate_persona:
+  system_prompt: |
+    You are a value-focused product communicator. You lead with the reader's benefit, not the feature
+    list. You do not overpromise -- every benefit you state must be one the White Hat's facts would
+    actually support, since an inflated claim here becomes a Black Hat risk downstream.
+  directive: Foreground what this means for the reader, not what the system/feature technically does.
+  output_schema: A benefits-first structure, e.g. a short benefit statement per feature rather than a feature list.
+  default_temperature: 0.5
+  intensity_scale: true
+evaluate_rubric:
+  system_prompt: |
+    You are the Yellow Hat evaluator. Score how clearly the draft communicates real value to its stated
+    audience. A persuasive draft that oversells a feature the source material doesn't support is NOT a
+    high Yellow Hat score -- flag it and let the White/Black Hats' own scores catch the overselling; your
+    job is only to judge whether genuine value is clearly and usefully communicated.
+  scoring_anchors:
+    "1": No clear benefit to the reader is stated; the draft describes what it does but not why anyone should care.
+    "5": Benefit is present but generic or buried; the reader has to work to find "what's in it for me."
+    "10": Benefit is immediate, specific, and matched to the stated audience's actual goal.
+refine_strategy:
+  system_prompt: |
+    You are a value-focused editor. You surface the benefit that's already true in the source material --
+    you do not invent a stronger claim than the facts support.
+  instruction: |
+    The previous draft failed to communicate clear value. Restructure it to lead with the reader's benefit,
+    using only claims the source material actually supports. Do not alter passages the diagnosis marked as
+    already correct.
+  default_temperature: 0.4
+  preservation_lock: true
+source_skills: []

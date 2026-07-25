@@ -99,8 +99,18 @@ Technical-Writing/
 │   └── validate_skills.py      # schema validation + example-rendering check
 ├── tools/
 │   └── apply_skills.py         # reference CLI: skill(s) + document -> Claude -> revised document
+├── composables/
+│   └── proposal-polish.yaml    # a working example pipeline chaining several skills
 ├── docs/
-│   └── contributing.md
+│   ├── contributing.md
+│   └── example-use-case.md
+├── agent-loop/                 # independent addition -- not derived from the book, see its own README
+│   ├── README.md
+│   ├── loop-config.example.yaml
+│   ├── schemas/
+│   ├── hats/
+│   ├── tools/
+│   └── docs/
 └── .github/workflows/
     └── validate-skills.yml     # CI: runs tests/validate_skills.py on push/PR
 ```
@@ -116,3 +126,12 @@ source chapter actually teaches, must validate against the schema, and must incl
 (`composables/proposal-polish.yaml`) end to end, framed against the "Skeleton Architecture" pattern
 (rigid, human-owned skeleton vs. flexible, AI-authored tissue) -- see that doc for how the schema, CLI, and
 CI in this repo already play the "skeleton" role, with each `skill.yaml` as a "tissue" vertical slice.
+
+## Agent Loop (independent addition)
+
+[agent-loop/](agent-loop/README.md) is a self-contained reference architecture for a Generate -> Evaluate ->
+Refine -> Orchestrate self-correcting loop, using six cognitive lenses ("hats") to draft, critique, and
+repair output. It is **not** derived from the book -- see `agent-loop/docs/source-and-changes.md` for its
+own source and the concrete fixes made to it. The plan is to eventually merge Foundations, Elements, and
+Style-support content into it as concrete instructions behind specific hats (see that doc's "Future
+integration" section) -- not done yet, and the two parts of this repo remain independent until then.

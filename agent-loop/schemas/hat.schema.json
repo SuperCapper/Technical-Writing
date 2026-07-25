@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SuperCapper/Technical-Writing/agent-loop/schemas/hat.schema.json",
+  "title": "Cognitive Lens (\"Hat\") Card",
+  "description": "One of the six cognitive lenses used across the Generate/Evaluate/Refine stages of the agent-loop architecture. A hat card can supply a generation persona, an evaluation rubric, a refinement/repair strategy, or any combination -- a hat is defined once and reused across whichever stages need it.",
+  "type": "object",
+  "required": ["id", "name", "version", "lens", "description"],
+  "anyOf": [
+    { "required": ["generate_persona"] },
+    { "required": ["evaluate_rubric"] },
+    { "required": ["refine_strategy"] }
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Unique short id, e.g. 'black', 'white'. Custom hats beyond the canonical six are allowed as long as `lens` names what cognitive dimension they cover."
+    },
+    "name": { "type": "string" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "lens": {
+      "type": "string",
+      "enum": ["facts", "value", "risk", "feelings", "creativity", "process"],
+      "description": "The cognitive dimension this hat evaluates or generates for -- facts (White), value (Yellow), risk (Black), feelings (Red), creativity (Green), process (Blue)."
+    },
+    "description": { "type": "string" },
+    "veto": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, this hat's score falling below its pass_threshold is a hard, automatic fail (Escalate/Reject) regardless of every other hat's score or the aggregate weighted average. This must be enforced as a deterministic check in the orchestrator, never left to a prompt asking the Blue Hat to 'remember to veto' -- see agent-loop/README.md's Design Principles."
+    },
+    "weight": {
+      "type": "number",
+      "default": 1.0,
+      "description": "Used ONLY to compute the aggregate score that the convergence/improvement-delta check (the Yellow Hat heuristic) tracks across iterations. Never used for pass/fail -- that is pass_threshold's and veto's job alone. Keeping these separate avoids the ambiguity of the original design, where weight and threshold could silently disagree about whether a hat's failure mattered."
+    },
+    "pass_threshold": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10,
+      "default": 6,
+      "description": "Score (1-10) this hat must meet or exceed during evaluation to count as passing."
+    },
+    "generate_persona": {
+      "type": "object",
+      "description": "Used when this hat is selected as the cognitive lens for the Generate stage.",
+      "required": ["system_prompt", "directive"],
+      "properties": {
+        "system_prompt": { "type": "string" },
+        "directive": { "type": "string" },
+        "output_schema": { "type": "string", "description": "Free-text description of the expected output shape, e.g. 'a Risk Register with Severity and Likelihood columns'." },
+        "default_temperature": { "type": "number", "minimum": 0, "maximum": 1 },
+        "intensity_scale": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this persona supports an intensity 0-10 knob controlling how strongly the lens dominates the draft."
+        }
+      }
+    },
+    "evaluate_rubric": {
+      "type": "object",
+      "description": "Used when this hat participates in the Evaluate stage's ensemble.",
+      "required": ["system_prompt", "scoring_anchors"],
+      "properties": {
+        "system_prompt": { "type": "string" },
+        "scoring_anchors": {
+          "type": "object",
+          "description": "Concrete anchors for at least the 1, 5, and 10 points on this hat's 1-10 scale.",
+          "required": ["1", "5", "10"],
+          "properties": {
+            "1": { "type": "string" },
+            "5": { "type": "string" },
+            "10": { "type": "string" }
+          }
+        }
+      }
+    },
+    "refine_strategy": {
+      "type": "object",
+      "description": "Used when this hat's axis is the one the Blue Hat diagnoses as failing, and this hat is deployed as the targeted repair.",
+      "required": ["system_prompt", "instruction"],
+      "properties": {
+        "system_prompt": { "type": "string" },
+        "instruction": { "type": "string" },
+        "default_temperature": { "type": "number", "minimum": 0, "maximum": 1 },
+        "preservation_lock": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this strategy's prompt must instruct the model to leave every already-passing axis untouched (see loop-config's preservation_locking)."
+        }
+      }
+    },
+    "source_skills": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Forward-looking, currently unused: skill IDs from skills/*/skill.yaml (e.g. 'style-support.style-mechanics') that this hat's instructions will eventually derive from, once Foundations/Elements/Style-support content is merged into agent-loop. Empty until that merge happens -- do not populate speculatively."
+    },
+    "changelog": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "version": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      }
+    }
+  }
+}

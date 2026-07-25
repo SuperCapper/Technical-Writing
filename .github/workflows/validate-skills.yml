@@ -16,3 +16,4 @@ jobs:
       - run: pip install -r requirements.txt
       - run: python tests/validate_skills.py
       - run: python tests/test_guardrails.py
+      - run: python agent-loop/tools/validate_loop.py

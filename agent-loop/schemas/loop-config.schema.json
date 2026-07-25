@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SuperCapper/Technical-Writing/agent-loop/schemas/loop-config.schema.json",
+  "title": "Agent Loop Configuration",
+  "description": "Configuration for one instance of the Generate -> Evaluate -> Refine -> Orchestrate loop: which hats participate, how evaluation is tiered, what the hard budget/veto guardrails are, and how refinement is routed. This is a reference configuration format (mirrors schemas/skill.schema.json's role for skills/*/skill.yaml) -- there is no runtime engine in this repo that executes it yet; see agent-loop/README.md.",
+  "type": "object",
+  "required": ["id", "name", "version", "hats", "evaluation", "budget", "convergence", "strategy_map"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "name": { "type": "string" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "description": { "type": "string" },
+    "hats": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "IDs of hat cards (agent-loop/hats/<id>.yaml) that participate in this loop's Evaluate ensemble."
+    },
+    "evaluation": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["single-structured-call", "per-hat-calls"],
+          "description": "single-structured-call: one API call returns all hats' scores via structured output (cheap; the recommended default). per-hat-calls: one separate API call per hat (6x the cost/latency of single-structured-call; use only when a hat's rubric is complex enough to need its own full context window or when validating that single-structured-call isn't silently averaging distinct hats together)."
+        },
+        "pre_filter_output_constraints": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether cheap, deterministic checks (e.g. a skill's output_constraints, see schemas/skill.schema.json and tools/guardrails.py) run BEFORE the hat ensemble at all. Recommended true: it's wasteful to spend an LLM ensemble call scoring an output that already fails an objective, free check."
+        }
+      }
+    },
+    "veto_hats": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": ["black"],
+      "description": "Hat IDs whose failing pass_threshold triggers an automatic hard-fail (see each hat's own `veto` field, which this list should match). Declaring it again here, at the loop level, is deliberate: it makes the veto behavior visible in the config a reader is most likely to check, rather than requiring them to open every hat card to discover which one has veto power."
+    },
+    "budget": {
+      "type": "object",
+      "required": ["max_iterations"],
+      "properties": {
+        "max_iterations": { "type": "integer", "minimum": 1 },
+        "cost_ceiling_usd": { "type": "number", "minimum": 0 },
+        "time_out_seconds": { "type": "integer", "minimum": 1 },
+        "on_ceiling_reached": {
+          "type": "string",
+          "enum": ["return_best_so_far", "escalate_to_human", "fail"],
+          "default": "return_best_so_far",
+          "description": "return_best_so_far requires the orchestrator to have archived every attempt's aggregate score -- see white_hat_archivist below."
+        }
+      }
+    },
+    "convergence": {
+      "type": "object",
+      "required": ["improvement_delta_threshold"],
+      "properties": {
+        "improvement_delta_threshold": {
+          "type": "number",
+          "description": "Minimum increase in the weighted aggregate score (see each hat's `weight`) required to justify another refine+re-evaluate cycle. Below this delta, stop and either return the best-so-far attempt or escalate."
+        }
+      }
+    },
+    "strategy_map": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Maps a failing hat's `lens` (facts/value/risk/feelings/creativity/process) to the hat id whose refine_strategy should be deployed to repair it. Every lens used by any hat in `hats` should have an entry; validated by tools/validate_loop.py."
+    },
+    "escalation": {
+      "type": "object",
+      "properties": {
+        "triggers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["condition", "action"],
+            "properties": {
+              "condition": { "type": "string", "description": "Free-text condition description; the reference implementation (once built) should express this as an actual predicate, not a string it has to parse." },
+              "action": { "type": "string", "enum": ["immediate_pause", "pause_for_human_review", "hard_reject"] }
+            }
+          }
+        },
+        "response_timeout_hours": { "type": "number" }
+      }
+    },
+    "reward_hacking_mitigations": {
+      "type": "object",
+      "description": "Soft instructions ('don't apologize to inflate your tone score') are not guardrails and are not trusted here. Use structural mitigations instead.",
+      "properties": {
+        "cross_judge_sampling": {
+          "type": "object",
+          "properties": {
+            "every_n_iterations": { "type": "integer", "minimum": 1 },
+            "judge_model": { "type": "string", "description": "A model from a different family/provider than the one used for generation, so the judge cannot share the generator's blind spots." }
+          }
+        }
+      }
+    },
+    "white_hat_archivist": {
+      "type": "object",
+      "description": "State/history persistence. This repo does not implement a state store; this section documents the contract a real implementation must satisfy.",
+      "properties": {
+        "persist_every_attempt": { "type": "boolean", "default": true },
+        "history_compression": {
+          "type": "string",
+          "enum": ["none", "summarize_after_n_tokens"],
+          "default": "summarize_after_n_tokens",
+          "description": "Prior failed attempts must be compressed before being fed back into a refinement prompt, and treated as untrusted prior output, not as trusted instructions -- see agent-loop/README.md's security note."
+        }
+      }
+    }
+  }
+}

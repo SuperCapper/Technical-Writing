@@ -1,0 +1,40 @@
+id: general-purpose-loop
+name: General-Purpose Self-Correcting Loop
+version: 1.0.0
+description: >
+  A reference loop configuration using all six hats. Suitable as a starting point for most technical/business
+  writing tasks; tune weights, thresholds, and the strategy_map per use case (see agent-loop/README.md's
+  Quick-Reference presets for worked examples: legal drafting, marketing copy, code documentation, etc.).
+hats: [white, yellow, black, red, green, blue]
+evaluation:
+  mode: single-structured-call
+  pre_filter_output_constraints: true
+veto_hats: [black]
+budget:
+  max_iterations: 3
+  cost_ceiling_usd: 0.15
+  time_out_seconds: 25
+  on_ceiling_reached: return_best_so_far
+convergence:
+  improvement_delta_threshold: 0.3
+strategy_map:
+  facts: white
+  value: yellow
+  risk: black
+  feelings: red
+  creativity: green
+  process: blue
+escalation:
+  triggers:
+    - condition: black.score < black.pass_threshold
+      action: immediate_pause
+    - condition: iteration_count >= budget.max_iterations AND improvement_delta < convergence.improvement_delta_threshold
+      action: pause_for_human_review
+  response_timeout_hours: 24
+reward_hacking_mitigations:
+  cross_judge_sampling:
+    every_n_iterations: 10
+    judge_model: a-different-model-family-than-the-generator
+white_hat_archivist:
+  persist_every_attempt: true
+  history_compression: summarize_after_n_tokens
