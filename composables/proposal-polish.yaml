@@ -1,0 +1,17 @@
+id: proposal-polish
+name: "Proposal Polish"
+version: "1.0.0"
+description: >
+  Takes a rough proposal draft through three chapters of the book in sequence: shape it as a proposal
+  (Ch. 8), tighten its style and mechanics (Ch. 15), then check its visuals (Ch. 17). Order matters --
+  structural fixes happen first so mechanical edits land on the final prose, not a draft that is about to
+  be restructured.
+steps:
+  - skill_id: genres.proposal
+    parameters:
+      formality: informal
+  - skill_id: style-support.style-mechanics
+    parameters:
+      strictness: moderate
+  - skill_id: style-support.visuals
+    parameters: {}

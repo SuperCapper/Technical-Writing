@@ -109,3 +109,10 @@ Technical-Writing/
 
 See [docs/contributing.md](docs/contributing.md). In short: every skill must trace back to something its
 source chapter actually teaches, must validate against the schema, and must include a worked example.
+
+## Example use case
+
+[docs/example-use-case.md](docs/example-use-case.md) walks through a real, runnable pipeline
+(`composables/proposal-polish.yaml`) end to end, framed against the "Skeleton Architecture" pattern
+(rigid, human-owned skeleton vs. flexible, AI-authored tissue) -- see that doc for how the schema, CLI, and
+CI in this repo already play the "skeleton" role, with each `skill.yaml` as a "tissue" vertical slice.
