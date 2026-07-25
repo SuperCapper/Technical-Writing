@@ -82,6 +82,25 @@
       "type": "array",
       "items": { "type": "string" }
     },
+    "output_constraints": {
+      "type": "array",
+      "description": "Hard, deterministic guardrails checked against the model's actual output after each real (non-dry-run) call. See tools/guardrails.py for the validator each 'type' maps to.",
+      "items": {
+        "type": "object",
+        "required": ["type", "param"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["max_words"],
+            "description": "Name of the validator in tools/guardrails.py's VALIDATORS registry."
+          },
+          "param": {
+            "type": "string",
+            "description": "Name of one of this skill's own `parameters` holding the constraint's value (e.g. a max_words constraint reading its limit from a `word_limit` parameter)."
+          }
+        }
+      }
+    },
     "model": { "type": "string" },
     "max_tokens": { "type": "integer" },
     "thinking": { "type": "boolean" },

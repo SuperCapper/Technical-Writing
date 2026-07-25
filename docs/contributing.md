@@ -28,6 +28,40 @@ python tools/apply_skills.py --skill skills/07-instructions/skill.yaml \
 `--dry-run` prints the rendered system/user prompts without calling the API, so you can sanity-check a
 prompt change before spending a token on it.
 
+## Output guardrails
+
+Prompts are soft: a skill can ask for a word limit or a required section and still miss it. For anything
+objective and cheap to check, declare a hard guardrail instead of trusting the prompt alone:
+
+```yaml
+parameters:
+  word_limit:
+    type: integer
+    default: 250
+output_constraints:
+- type: max_words
+  param: word_limit
+```
+
+`apply_skill()` checks every declared `output_constraints` entry against the model's real response (not
+during `--dry-run`, since there's no real response yet) and calls `sys.exit(1)` with a clear message on the
+first violation. In a pipeline this stops the chain immediately -- a violating output never reaches the next
+step, and `--output` never gets written from a run that failed partway through.
+
+Only `max_words` exists today (`tools/guardrails.py`'s `VALIDATORS` registry;
+`skills/14-abstract-summary/skill.yaml` is the only skill using it so far). To add a new constraint type:
+write a function in `guardrails.py` with the signature `(text, constraint, params) -> None` that raises
+`GuardrailViolation` on failure, register it in `VALIDATORS`, and add its name to the `type` enum in
+`schemas/skill.schema.json`. Keep every validator here deterministic -- string length, counts, regex -- since
+it runs on every real invocation and can't afford to be a second, fallible LLM call checking the first one.
+Whether the output actually satisfies the chapter's checklist is still a human's job (or a future
+Claude-as-judge pass), not this module's.
+
+`tests/validate_skills.py` cross-checks every `output_constraints[].param` against that skill's own declared
+`parameters` (catching a typo like `word_limt` at CI time, not at runtime) and every `type` against
+`guardrails.VALIDATORS`. `tests/test_guardrails.py` exercises the validators and the `--param`
+type-coercion path directly against synthetic input -- no API key required, runs in CI on every push.
+
 ## Composables
 
 A pipeline chains multiple skills in order (e.g. run `style-support.style-mechanics` after

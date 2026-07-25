@@ -15,7 +15,7 @@ it plugs into the pattern cleanly.
 | Template Method's `final run()` | `apply_skill()` in `tools/apply_skills.py`: every skill is rendered, (optionally) dry-run-printed, sent to Claude, and returned through the exact same sequence -- no skill can special-case its way around this |
 | `protected _execute()` | The prompt content itself -- the only thing a skill author actually writes |
 | Director role | The human running `apply_skills.py`, choosing which skill/pipeline to run, and reviewing output against the chapter's own checklist |
-| Hard guardrails | `tests/validate_skills.py` (schema validation, example-rendering check) enforced in CI on every push; `--dry-run` as a pre-flight check before spending a token |
+| Hard guardrails | `tests/validate_skills.py` (schema validation, example-rendering check) enforced in CI on every push; `--dry-run` as a pre-flight check before spending a token; `output_constraints` + `tools/guardrails.py` checking the model's real output (word count today) and `sys.exit(1)`-ing on violation -- see Step 6 |
 | Walking skeleton | How this repo was actually built: schema + one working skill + CLI proven end-to-end *first*, then 20 more tissue slices filled in against that same fixed skeleton |
 | Vertical slices | One `skill.yaml` per book chapter/genre -- each isolated, each concerned only with its own transformation |
 | Architecture drift | Would look like special-casing one skill inside `apply_skills.py` (e.g. `if skill["id"] == "genres.proposal": ...`) instead of changing the skill's YAML -- something this repo's structure makes awkward to do by accident |
@@ -164,15 +164,29 @@ If a checklist item is missed, that's a **tissue** problem: the fix is to sharpe
 that's the architecture-drift failure mode the article warns about, and this repo's structure makes it
 awkward to do by accident.
 
-### Step 6 -- A guardrail worth adding later (not implemented here)
+### Step 6 -- The word-count guardrail, now implemented
 
-The article's strongest claim is "hard guardrails, not soft prompts." One concrete candidate for this repo:
-`skills/14-abstract-summary/skill.yaml` has a `word_limit` parameter, but nothing currently enforces it
-except the prompt asking nicely. A real hard guardrail would check the *output's* word count in
-`apply_skill()` (skeleton, one place) and fail fast if it's violated -- rather than trusting every skill
-author to remember to ask nicely in every relevant prompt (tissue, 21 places). That single change would
-apply uniformly to every skill with a `word_limit` parameter, present or future -- which is exactly the
-leverage a skeleton is supposed to provide.
+The article's strongest claim is "hard guardrails, not soft prompts." `skills/14-abstract-summary/skill.yaml`
+declares one:
+
+```yaml
+output_constraints:
+- type: max_words
+  param: word_limit
+```
+
+`apply_skill()` (skeleton, one place) checks this against the model's *actual* response -- not during
+`--dry-run`, since there's no real response yet -- and calls `sys.exit(1)` on the first violation, rather
+than trusting every skill author to ask nicely in every relevant prompt (tissue, 21 places). The validator
+itself lives in `tools/guardrails.py`'s `VALIDATORS` registry, referenced by name (`max_words`) so a new
+constraint type is additive: write one function, register it, add its name to the schema's `type` enum --
+no changes to any existing skill or to `run_pipeline()`'s control flow. `tests/validate_skills.py` also
+cross-checks that every declared `param` (e.g. `word_limit`) actually exists on that skill, so a typo fails
+in CI, not on a real document mid-pipeline. See `docs/contributing.md`'s "Output guardrails" section for how
+to add another constraint type.
+
+This is the leverage a skeleton is supposed to provide: one change, in one place, that every present and
+future skill with a matching constraint benefits from automatically.
 
 ## 3. Why this holds together
 

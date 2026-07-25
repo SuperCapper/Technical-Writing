@@ -18,6 +18,9 @@ parameters:
   word_limit:
     type: integer
     default: 250
+output_constraints:
+- type: max_words
+  param: word_limit
 system_prompt: |
   You write {{ output_kind }}s per Technical Writing for Engineers and Scientists. A descriptive abstract
       tells the reader what topics a paper covers without giving results; an informative abstract gives the

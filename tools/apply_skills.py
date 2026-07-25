@@ -15,6 +15,8 @@ from pathlib import Path
 import yaml
 from jinja2 import Template
 
+import guardrails
+
 
 def load_yaml(path: str) -> dict:
     with open(path, encoding="utf-8") as f:
@@ -25,13 +27,35 @@ def default_params(skill: dict) -> dict:
     return {k: v.get("default") for k, v in skill.get("parameters", {}).items()}
 
 
-def render_prompt(skill: dict, document: str, overrides: dict) -> str:
-    params = {**default_params(skill), **overrides}
+def coerce_override(value, param_type: str):
+    """CLI --param overrides always arrive as strings; pipeline-declared parameters (from YAML) already
+    have the right type. Only coerce actual strings, and only per the parameter's declared type, so a
+    boolean override like `include_disclaimer=false` doesn't survive as the truthy string "false"."""
+    if not isinstance(value, str):
+        return value
+    if param_type == "integer":
+        return int(value)
+    if param_type == "boolean":
+        return value.strip().lower() in ("1", "true", "yes")
+    return value
+
+
+def resolve_params(skill: dict, overrides: dict) -> dict:
+    params = default_params(skill)
+    param_defs = skill.get("parameters", {})
+    for key, value in overrides.items():
+        param_type = param_defs.get(key, {}).get("type", "string")
+        params[key] = coerce_override(value, param_type)
+    return params
+
+
+def render_prompt(skill: dict, document: str, params: dict) -> str:
     return Template(skill["user_prompt_template"]).render(document=document, **params)
 
 
 def apply_skill(skill: dict, document: str, overrides: dict, api_key: str, dry_run: bool, verbose: bool) -> str:
-    user_prompt = render_prompt(skill, document, overrides)
+    params = resolve_params(skill, overrides)
+    user_prompt = render_prompt(skill, document, params)
 
     if verbose:
         print(f"[{skill['id']}] input length: {len(document)} chars", file=sys.stderr)
@@ -42,6 +66,8 @@ def apply_skill(skill: dict, document: str, overrides: dict, api_key: str, dry_r
         print(skill["system_prompt"], file=sys.stderr)
         print(f"=== {skill['id']} :: user_prompt ===", file=sys.stderr)
         print(user_prompt, file=sys.stderr)
+        if verbose and skill.get("output_constraints"):
+            print(f"[{skill['id']}] output_constraints skipped: no real output in --dry-run", file=sys.stderr)
         return document
 
     import anthropic
@@ -53,7 +79,15 @@ def apply_skill(skill: dict, document: str, overrides: dict, api_key: str, dry_r
         system=skill["system_prompt"],
         messages=[{"role": "user", "content": user_prompt}],
     )
-    return response.content[0].text
+    result = response.content[0].text
+
+    try:
+        guardrails.check_output(skill, result, params)
+    except guardrails.GuardrailViolation as e:
+        print(f"[{skill['id']}] GUARDRAIL VIOLATION: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    return result
 
 
 def parse_param_overrides(pairs: list[str]) -> dict:
