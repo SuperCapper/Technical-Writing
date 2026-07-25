@@ -30,6 +30,51 @@ means: if a skill's output is wrong, the fix is almost always to edit that skill
 proposal -- structurally sound, mechanically clean, and with well-formed visuals -- by chaining three
 chapters of the book together.
 
+### Step 0 -- Scaffold with the Elements chapters first, by hand
+
+Dana's real draft needs two things a whole-document pipeline can't provide: a precise definition of
+"sample-separation protocol" for a non-technical funder, and a description of the new centrifuge itself.
+Chapters 4-6 (`elements.*`) teach exactly this, but they don't fit into `composables/*.yaml` -- see
+`docs/contributing.md`'s "Elements skills are scaffolding, not pipeline steps" section for why: a
+term-in/definition-out skill and a stub-in/section-out skill don't share the document-in/document-out
+contract every pipeline step assumes. So Dana runs them standalone, before there's a pipeline to speak of:
+
+```bash
+python tools/apply_skills.py --skill skills/04-technical-definition/skill.yaml \
+    --input term.txt --output definition.txt --dry-run --verbose
+```
+
+`term.txt` (verified against the live skill):
+
+```
+sample-separation protocol (needs a definition a non-technical funder can use)
+```
+
+This renders a real prompt -- `elements.technical-definition`'s system prompt (classification +
+differentiation, no circular definitions) plus the term wrapped in `<term_and_context>`, at the skill's
+default `audience_familiarity: some-experience`. Dropping `--dry-run` sends it to Claude and returns a
+definition snippet Dana can paste straight into her draft's problem section.
+
+```bash
+python tools/apply_skills.py --skill skills/05-mechanism-description/skill.yaml \
+    --input mechanism-stub.md --output mechanism-section.md --dry-run --verbose
+```
+
+`mechanism-stub.md` (verified against the live skill):
+
+```
+Model CX-90 centrifuge: outer housing, rotor rated to 8000 RPM, digital speed controller, safety interlock lid.
+```
+
+This renders `elements.mechanism-description`'s Outline 5.1 structure (define the mechanism and its overall
+function, one subsection per part, conclude with how the parts interrelate) around that stub. The result is
+a short mechanism-description section -- not a revised document -- that Dana pastes into her draft as
+supporting material, wherever it belongs (background section, or an appendix).
+
+Only once both snippets are pasted into `draft.md` does Dana move to Step 1. Nothing about this step touches
+`tools/apply_skills.py` or `composables/`; it's pure manual assembly, and that's the point -- Elements
+skills are drafting tools the human wields directly, not stages a finished draft passes through.
+
 ### Step 1 -- Compose the pipeline (tissue composition, not new skeleton code)
 
 `composables/proposal-polish.yaml`:

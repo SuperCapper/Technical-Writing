@@ -32,5 +32,45 @@ prompt change before spending a token on it.
 
 A pipeline chains multiple skills in order (e.g. run `style-support.style-mechanics` after
 `genres.proposal` so mechanical edits land last). Pipelines live under `composables/` as a YAML file with a
-`steps` list of `{skill_id, parameters}`. There is no pipeline in the repo yet -- add one under
-`composables/` once you have a real end-to-end use case, rather than speculatively.
+`steps` list of `{skill_id, parameters}`. See `composables/proposal-polish.yaml` for a working example, and
+`docs/example-use-case.md` for a full walkthrough. Add a new pipeline once you have a real end-to-end use
+case, rather than speculatively.
+
+Pipelines only work for skills that transform a whole document into a revised whole document. Not every
+skill in this repo is shaped that way -- see the next section before adding an Elements skill to a pipeline.
+
+## Elements skills (Ch. 4-6) are scaffolding, not pipeline steps
+
+`elements.technical-definition`, `elements.mechanism-description`, and `elements.process-description` teach
+the building blocks a writer reaches for *while drafting* a genre document -- they are not, themselves, a
+document type. That shows up directly in their `target_input`:
+
+- `elements.technical-definition` takes a **term** (`target_input: text`) and returns a definition snippet --
+  e.g. `"sample-separation protocol (needs a definition a non-technical funder can use)"` in,
+  `"In [domain], a sample-separation protocol is..."` out. It is not shaped like a document revision at all.
+- `elements.mechanism-description` and `elements.process-description` take a **stub** (`target_input:
+  markdown`) and expand it into a full description -- document-shaped, but the input is a fragment meant to
+  become a *section* of something larger, not a whole draft to be revised in place.
+
+None of that fits the contract every pipeline step in `composables/*.yaml` assumes: whole document in, whole
+document out, threaded straight into the next step. Forcing an Elements skill into that shape would need
+new machinery this repo doesn't have -- something to find which terms/mechanisms/processes in a draft
+actually need this treatment, and something to splice each result back into the right spot. Building that is
+a real option (see the "marker-based splice" and "first-class schema support" options discussed in
+`docs/example-use-case.md`), but it's real engineering, not a config change.
+
+**Until then, the intended workflow is manual, and that's fine:**
+
+1. Before assembling a draft, run each Elements skill standalone for anything that needs it:
+   ```bash
+   python tools/apply_skills.py --skill skills/04-technical-definition/skill.yaml \
+       --input term.txt --output definition.txt
+   python tools/apply_skills.py --skill skills/05-mechanism-description/skill.yaml \
+       --input mechanism-stub.md --output mechanism-section.md
+   ```
+2. Paste the results into the draft by hand, wherever they belong.
+3. Only then run the assembled draft through a `composables/*.yaml` pipeline (structure, style, visuals).
+
+This matches how the book itself is organized -- Chapters 4-6 come *before* the genre chapters (7-14) as
+techniques a writer already has in hand, not a stage a finished draft passes through afterward. Don't add an
+Elements skill to a `composables/*.yaml` pipeline; use it standalone during drafting instead.
