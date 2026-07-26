@@ -106,6 +106,17 @@ cheaper option. `evaluation.mode: single-structured-call` (the default in `loop-
 for all six scores in one structured-output call; reserve `per-hat-calls` for when a specific hat's rubric
 is complex enough to need its own full context window.
 
+**A per-call tool-use cap is a different guardrail than the iteration budget.** `budget.max_iterations`
+bounds the outer Generate->Evaluate->Refine loop; `budget.max_tool_round_trips_per_call` (not yet enforced --
+no hat currently has tool access) bounds tool-calling round trips *within* a single call, for whenever a
+hat's `generate_persona` or `refine_strategy` is given tool access. This isn't hypothetical: an
+[InfoQ writeup of a LangChain4j experiment](https://www.infoq.com/articles/self-building-agent-langchain4j/)
+found a weaker model spinning past 100 tool-calling round trips in a single step precisely because no such
+cap existed, while their deterministic "Workflow" pattern (sequential stages, no LLM choosing what to do
+next) ran 3x faster than their LLM-coordinated "Supervisor" pattern with no quality loss for the task at
+hand -- independent, external support for the same bet `orchestrator.py`'s `choose_repair_lens` already
+makes: never let an LLM decide the control flow when a deterministic rule can decide it instead.
+
 **Reward-hacking mitigation must be structural, not a polite request.** The source's mitigation for a model
 "apologizing" to inflate its own tone score was a system instruction asking it not to. That's a soft prompt
 defending against exactly the failure mode this architecture exists to catch with hard checks instead. Use

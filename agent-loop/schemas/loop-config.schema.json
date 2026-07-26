@@ -45,6 +45,12 @@
         "max_iterations": { "type": "integer", "minimum": 1 },
         "cost_ceiling_usd": { "type": "number", "minimum": 0 },
         "time_out_seconds": { "type": "integer", "minimum": 1 },
+        "max_tool_round_trips_per_call": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "A DIFFERENT cap than max_iterations: max_iterations bounds the outer Generate->Evaluate->Refine loop; this bounds tool-calling round trips WITHIN a single Generate, Evaluate, or Refine call, for if/when a hat's generate_persona or refine_strategy is ever given tool access (none currently are -- see tools/run_loop.py). Without this, a single call could loop on tool use indefinitely while max_iterations only ever sees it as one step. Modeled on LangChain4j's maxToolCallingRoundTrips(), whose absence was observed to let a weaker judge/generator model spin past 100 tool-calling round trips in a single step -- see https://www.infoq.com/articles/self-building-agent-langchain4j/. Not yet enforced anywhere in this repo; documented here as the contract to implement if a hat ever gains tool access, the same way white_hat_archivist documents a contract ahead of a full implementation.",
+          "default": 10
+        },
         "on_ceiling_reached": {
           "type": "string",
           "enum": ["return_best_so_far", "escalate_to_human", "fail"],

@@ -14,6 +14,7 @@ budget:
   max_iterations: 3
   cost_ceiling_usd: 0.15
   time_out_seconds: 25
+  max_tool_round_trips_per_call: 10  # not yet enforced -- no hat currently has tool access; see schema description
   on_ceiling_reached: return_best_so_far
 convergence:
   improvement_delta_threshold: 0.3
