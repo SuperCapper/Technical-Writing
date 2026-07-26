@@ -35,6 +35,10 @@ Validate the whole catalog (schema + renderability of every example):
 python tests/validate_skills.py
 ```
 
+Prefer chat over the terminal? [docs/running-via-claude-code.md](docs/running-via-claude-code.md) has
+copy-pasteable prompts for running Genres skills, Workplace skills, and the Agent Loop from Claude Code's
+chat panel in VS Code, including how to toggle between all three without retyping the setup each time.
+
 ## Skill catalog
 
 ### Foundations -- what technical writing is and how it's governed
@@ -103,7 +107,8 @@ Technical-Writing/
 │   └── proposal-polish.yaml    # a working example pipeline chaining several skills
 ├── docs/
 │   ├── contributing.md
-│   └── example-use-case.md
+│   ├── example-use-case.md
+│   └── running-via-claude-code.md
 ├── agent-loop/                 # independent addition -- not derived from the book, see its own README
 │   ├── README.md
 │   ├── loop-config.example.yaml
