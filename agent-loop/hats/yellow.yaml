@@ -1,11 +1,14 @@
 id: yellow
 name: Yellow Hat -- Value
-version: 1.0.0
+version: 1.0.1
 lens: value
 description: >
   Strategic value and user benefit: does this output actually help the reader accomplish what they came
   for? Distinct from Red (how it makes them feel) and White (whether it's true) -- Yellow asks whether it's
-  useful.
+  useful. Deliberately left unmerged with Foundations/Elements/Style-support content: none of those 10 book
+  chapters teach persuasion or benefit-communication -- that lives in the book's Genres/Workplace chapters
+  (proposals, business communication), which are out of scope for this merge. source_skills stays empty on
+  purpose; see agent-loop/docs/foundations-elements-style-merge.md.
 veto: false
 weight: 0.8
 pass_threshold: 6
@@ -39,3 +42,9 @@ refine_strategy:
   default_temperature: 0.4
   preservation_lock: true
 source_skills: []
+changelog:
+- version: 1.0.1
+  notes: >
+    No prompt content changed. Documented, during the Foundations/Elements/Style-support merge, that this
+    hat has no genuine source among those 10 chapters -- left explicitly unmerged rather than silently
+    passed over.

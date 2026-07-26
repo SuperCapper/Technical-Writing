@@ -174,24 +174,24 @@ agent-loop/
     └── source-and-changes.md          # exactly what was fixed/added vs. the original source document
 ```
 
-## Future integration: Foundations, Elements, and Style-support
+## Foundations, Elements, and Style-support merge (done)
 
-The plan (not yet done) is to merge the book-derived Foundations (`skills/01-03`), Elements (`skills/04-06`),
-and Style-support (`skills/15-18`) chapters into this architecture as concrete content behind specific hats,
-rather than leaving the hats' instructions generic:
+Foundations (`skills/01-03`), Elements (`skills/04-06`), and Style-support (`skills/15-18`) content is now
+merged into four of the six hat cards' `source_skills`, `evaluate_rubric`, and `refine_strategy`:
 
-- **White Hat** (facts) is a natural home for `style-support.source-documentation` (citation completeness)
-  and the precision half of `style-support.style-mechanics`.
-- **Black Hat** (risk) is a natural home for `foundations.ethics-check` -- the ethics skill already screens
-  for exactly the kind of undisclosed-risk, deceptive-claim problems Black Hat's veto exists to catch.
-- **Red Hat** (feelings) overlaps with the audience/tone concerns in `foundations.reduce-abstraction` and the
-  empathy-driven parts of `workplace.business-communication`.
-- **Blue Hat** (process/organization) overlaps with `elements.mechanism-description` and
-  `elements.process-description`'s own structural checklists.
-- **Elements** in general are span-shaped, not document-shaped (see `docs/contributing.md`'s "Elements
-  skills are scaffolding" section) -- the same granularity mismatch that keeps them out of `composables/`
-  pipelines today applies here too, and needs solving once, not twice.
+- **White Hat** (facts) ← `elements.technical-definition`, `style-support.source-documentation`,
+  `style-support.style-mechanics` (precision half).
+- **Black Hat** (risk) ← `foundations.ethics-check`, `foundations.note-taking-triage`.
+- **Red Hat** (feelings) ← `foundations.reduce-abstraction` (audience calibration).
+- **Blue Hat** (process) ← `elements.mechanism-description`, `elements.process-description`,
+  `style-support.visuals`, `style-support.presentations`.
+- **Yellow and Green Hats** were left explicitly unmerged -- neither has a genuine match among these 10
+  chapters, and forcing one would mean inventing content this merge didn't actually derive from the book.
 
-The `source_skills` field on every hat card (`hats/*.yaml`) exists for exactly this: a currently-empty list
-of skill IDs a hat's instructions will eventually derive from. Leave it empty until that merge actually
-happens -- populating it speculatively now would just be documentation nobody's checked against real usage.
+See `docs/foundations-elements-style-merge.md` for the full rationale per hat, and for how the granularity
+mismatch flagged above (span-shaped `elements.technical-definition` vs. document-shaped everything else) was
+actually resolved: span-shaped content merges only into `evaluate_rubric`/`refine_strategy`, never into
+`generate_persona`, since there's no sensible way to draft a whole document "as a definition."
+
+Genres (`skills/07-14`) and Workplace (`skills/19-21`) remain unmerged, per the original scope -- not a
+follow-on TODO this merge implies, a separate decision for later.

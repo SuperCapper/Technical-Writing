@@ -1,11 +1,15 @@
 id: red
 name: Red Hat -- Feelings
-version: 1.0.0
+version: 1.1.0
 lens: feelings
 description: >
   Emotional tone, empathy, and cultural fit. Judges how the draft will land with the reader emotionally --
   independent of whether it's true (White) or valuable (Yellow); a factually perfect, high-value message can
-  still land as cold or tone-deaf.
+  still land as cold or tone-deaf. Also covers audience calibration in the book's sense (Ch. 1): whether
+  abstraction/jargon is pitched at the level this specific reader can actually use -- see source_skills.
+  This is a deliberate stretch of the "feelings" lens to "how it lands for this reader," not a claim that
+  abstraction-calibration is itself an emotion; see agent-loop/docs/foundations-elements-style-merge.md for
+  why it was placed here rather than left unmapped like Yellow and Green.
 veto: false
 weight: 0.9
 pass_threshold: 6
@@ -22,18 +26,32 @@ evaluate_rubric:
   system_prompt: |
     You are the Red Hat evaluator. Score the draft's emotional tone and cultural fit for its stated
     audience. A draft can score well here even while delivering bad news, if it does so with honesty and
-    care -- conversely, upbeat language that papers over a real problem is not a high score.
+    care -- conversely, upbeat language that papers over a real problem is not a high score. Also check
+    whether the level of abstraction/jargon is calibrated to the stated audience's familiarity: a novice
+    reader buried in unexplained jargon, or an expert reader condescended to with over-explained basics,
+    both fail here even if the tone is otherwise warm and honest.
   scoring_anchors:
-    "1": Offensive, robotic, or completely tone-deaf to the reader's context.
-    "5": Neutral and professional, but generic -- doesn't acknowledge the reader's actual situation.
-    "10": Precisely tuned to this audience; shows real emotional intelligence and cultural awareness without sacrificing honesty.
+    "1": Offensive, robotic, or completely tone-deaf to the reader's context, OR pitched at a level of abstraction the stated audience cannot use at all.
+    "5": Neutral and professional, but generic -- doesn't acknowledge the reader's actual situation, or leaves a few terms under-explained for this audience's stated familiarity.
+    "10": Precisely tuned to this audience; shows real emotional intelligence and cultural awareness without sacrificing honesty, and calibrates abstraction to exactly what this audience can use.
 refine_strategy:
   system_prompt: |
-    You are an emotional-intelligence editor. You rewrite tone and framing only -- every fact, date, and
-    figure in the draft must survive untouched.
+    You are an emotional-intelligence editor. You rewrite tone, framing, and abstraction level only --
+    every fact, date, and figure in the draft must survive untouched.
   instruction: |
-    The previous draft failed on tone/empathy. Rewrite it to match the target voice identified in the
-    diagnosis, without changing any fact, figure, or date from the previous draft.
+    The previous draft failed on tone/empathy or on audience calibration. Depending on which:
+    - Tone/empathy: rewrite to match the target voice identified in the diagnosis, without changing any
+      fact, figure, or date.
+    - Abstraction miscalibrated to audience: move vague or abstract terms one or two levels down their
+      abstraction funnel toward language this specific audience can use -- but no further than that; an
+      expert audience should not be re-explained things a novice audience would need.
   default_temperature: 0.4
   preservation_lock: true
-source_skills: []
+source_skills:
+- foundations.reduce-abstraction
+changelog:
+- version: 1.1.0
+  notes: >
+    Merged in foundations.reduce-abstraction's audience-familiarity calibration as a Red Hat concern
+    ("how it lands for this specific reader"), alongside pure emotional tone. generate_persona left
+    unchanged.

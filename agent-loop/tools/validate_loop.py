@@ -2,8 +2,10 @@
 """Validates agent-loop/hats/*.yaml against schemas/hat.schema.json and any agent-loop/*.yaml loop
 config (e.g. loop-config.example.yaml) against schemas/loop-config.schema.json, then cross-checks
 references between them: a loop's `hats` and `strategy_map` must point at hat ids that actually exist,
-`veto_hats` must match what each referenced hat's own `veto` field declares, and every lens used by a
-loop's hats should have a strategy_map entry so a failing axis always has somewhere to route to.
+`veto_hats` must match what each referenced hat's own `veto` field declares, every lens used by a loop's
+hats should have a strategy_map entry so a failing axis always has somewhere to route to, and every hat's
+`source_skills` must reference a skill id that actually exists under skills/*/skill.yaml (catching a typo
+in a book-chapter cross-reference at CI time rather than leaving it as unchecked documentation).
 
 Run: python agent-loop/tools/validate_loop.py
 """
@@ -16,6 +18,7 @@ import yaml
 import jsonschema
 
 AGENT_LOOP_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = AGENT_LOOP_ROOT.parent
 
 
 def load_yaml(path):
@@ -23,9 +26,17 @@ def load_yaml(path):
         return yaml.safe_load(f)
 
 
+def load_skill_ids():
+    ids = set()
+    for path in glob.glob(str(REPO_ROOT / "skills" / "*" / "skill.yaml")):
+        ids.add(load_yaml(path)["id"])
+    return ids
+
+
 def main():
     hat_schema = json.loads((AGENT_LOOP_ROOT / "schemas" / "hat.schema.json").read_text(encoding="utf-8"))
     loop_schema = json.loads((AGENT_LOOP_ROOT / "schemas" / "loop-config.schema.json").read_text(encoding="utf-8"))
+    skill_ids = load_skill_ids()
 
     failures = []
 
@@ -46,6 +57,9 @@ def main():
         if data["id"] in hats_by_id:
             failures.append(f"{rel}: duplicate hat id {data['id']}")
         hats_by_id[data["id"]] = data
+        for skill_id in data.get("source_skills", []):
+            if skill_id not in skill_ids:
+                failures.append(f"{rel}: source_skills references undeclared skill id '{skill_id}'")
 
     loop_files = sorted(glob.glob(str(AGENT_LOOP_ROOT / "*.yaml")))
     if not loop_files:

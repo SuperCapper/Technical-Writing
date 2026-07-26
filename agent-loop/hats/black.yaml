@@ -1,11 +1,13 @@
 id: black
 name: Black Hat -- Risk
-version: 1.0.0
+version: 1.1.0
 lens: risk
 description: >
   Risk, safety, security, legal/compliance exposure, and logical fallacies. The only hat with veto power
   by default: a production loop must treat certain failures (deceptive claims, safety omissions, legal
-  exposure) as non-negotiable, never as one input averaged against a good tone score.
+  exposure) as non-negotiable, never as one input averaged against a good tone score. Also covers the
+  book's own ethics hazards (undisclosed alteration, plagiarism, misleading data) and note-taking hazards
+  (safety-relevant omissions, ownership/discoverability) -- see source_skills below.
 veto: true
 weight: 1.5
 pass_threshold: 7
@@ -24,21 +26,45 @@ evaluate_rubric:
     how risky it is -- every hat in this system scores quality-ascending (higher is always better), so this
     hat is no exception. This score is checked against pass_threshold by the orchestrator's code, not by
     you: your job is only to produce an honest, specific score and cite the exact passage creating any risk,
-    not to decide what happens next.
+    not to decide what happens next. Concretely, check for:
+    - Images or figures that appear altered without the alteration and its purpose disclosed in the
+      caption itself (not just mentioned elsewhere in the text).
+    - Ideas, data, quotations, or images used without attribution (plagiarism / copyright exposure).
+    - Statistics or claims presented in a way that could mislead (cherry-picked samples, distorted framing,
+      an inflated benefit the facts don't support).
+    - Omitted, downplayed, or obscured facts that run contrary to the document's thesis -- especially any
+      safety-relevant detail that reads like it was left out on purpose.
+    - Content that would be unsafe, unprofessional, or a confidentiality/ownership problem if it surfaced
+      publicly, in legal discovery, or reached someone it wasn't meant for.
   scoring_anchors:
-    "1": A claim or omission that plausibly causes real harm -- a deceptive promise, a missing safety warning, a compliance violation, or an exposed vulnerability.
-    "5": A minor issue that could confuse a reader but carries no safety, legal, or reputational exposure.
-    "10": Zero risk; the draft is safe, compliant, and makes no claim the source material doesn't fully support.
+    "1": A claim or omission that plausibly causes real harm -- a deceptive promise, a missing safety warning, a compliance violation, an exposed vulnerability, an undisclosed alteration, or a suppressed safety-relevant fact.
+    "5": A minor issue that could confuse a reader but carries no safety, legal, reputational, or confidentiality exposure.
+    "10": Zero risk; the draft is safe, compliant, fully attributed, and makes no claim the source material doesn't fully support.
 refine_strategy:
   system_prompt: |
     You are a paranoid security auditor repairing a risky draft. You flag and correct only the specific
     risk identified in the diagnosis; you do not soften language elsewhere just because you're in a
     cautious mindset.
   instruction: |
-    The previous draft carries the specific risk identified in the diagnosis. Rewrite ONLY the passage
-    creating that risk -- remove the unsupported or unsafe claim, or add the missing caveat/warning. Do not
-    alter passages the diagnosis marked as already correct, and do not add hedging language beyond what the
-    specific risk requires.
+    The previous draft carries the specific risk identified in the diagnosis. Depending on what that risk
+    is:
+    - Unsupported or unsafe claim: remove it or add the missing caveat/warning.
+    - Undisclosed image/figure alteration: add disclosure of the alteration and its purpose directly in the
+      caption, not buried in surrounding prose.
+    - Uncredited idea, quotation, or data: add attribution.
+    - Omitted safety-relevant or contrary fact: restore it rather than leaving it out to protect the
+      document's thesis.
+    Do not alter passages the diagnosis marked as already correct, and do not add hedging language beyond
+    what the specific risk requires.
   default_temperature: 0.1
   preservation_lock: true
-source_skills: []
+source_skills:
+- foundations.ethics-check
+- foundations.note-taking-triage
+changelog:
+- version: 1.1.0
+  notes: >
+    Merged in foundations.ethics-check's hazard list (undisclosed alteration, plagiarism, misleading
+    data, suppressed contrary facts, social-media/confidentiality exposure) and
+    foundations.note-taking-triage's safety-omission and ownership/discoverability flags. generate_persona
+    left unchanged.

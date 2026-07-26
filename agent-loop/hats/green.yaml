@@ -1,11 +1,16 @@
 id: green
 name: Green Hat -- Creativity
-version: 1.0.0
+version: 1.0.1
 lens: creativity
 description: >
   Novelty, alternative framings, and out-of-the-box angles. The only hat where a low score is often
   acceptable by design (pass_threshold defaults lower than every other hat) -- creativity is a bonus for
-  most technical/business writing, not a requirement.
+  most technical/business writing, not a requirement. Deliberately left unmerged with Foundations/Elements/
+  Style-support content: the book's own Chapter 1 explicitly defines technical writing against creative
+  writing ("Technical writing is not what one does out in the meadow under an elm tree; that is creative
+  writing... Technical writing is the opposite of artistic"), so none of the 10 Foundations/Elements/
+  Style-support chapters have anything to contribute here. That's a real finding from the merge, not a gap;
+  source_skills stays empty on purpose. See agent-loop/docs/foundations-elements-style-merge.md.
 veto: false
 weight: 0.5
 pass_threshold: 4
@@ -38,3 +43,9 @@ refine_strategy:
   default_temperature: 0.7
   preservation_lock: true
 source_skills: []
+changelog:
+- version: 1.0.1
+  notes: >
+    No prompt content changed. Documented, during the Foundations/Elements/Style-support merge, that the
+    book's own thesis (technical writing defined against creative writing) means none of those 10 chapters
+    have anything to contribute to this hat -- left explicitly unmerged rather than silently passed over.

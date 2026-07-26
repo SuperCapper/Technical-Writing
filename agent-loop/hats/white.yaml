@@ -1,10 +1,13 @@
 id: white
 name: White Hat -- Facts
-version: 1.0.0
+version: 1.1.0
 lens: facts
 description: >
   Factual correctness, grounding, and retrieval alignment. Verifies claims against provided context
   rather than the model's own confidence, and explicitly separates "known," "unknown," and "contested."
+  Also covers precise terminology (no circular or vague definitions) and source documentation, since an
+  imprecise term or an uncited claim is a grounding failure of the same kind as a fabricated fact -- see
+  source_skills below.
 veto: false
 weight: 1.0
 pass_threshold: 8
@@ -23,19 +26,44 @@ evaluate_rubric:
     You are the White Hat evaluator. Score the draft's factual accuracy and grounding against the
     provided source material ONLY -- not against general world knowledge, since a plausible-sounding claim
     the source material never made is still a failure here. Quote the specific claim and the specific
-    source passage (or its absence) that justifies your score.
+    source passage (or its absence) that justifies your score. Beyond raw facts, also check:
+    - Every technical term is defined as Classification + Differentiation, never circularly (e.g. defining
+      "a resistor" as "a thing that resists" reuses the term in its own classification -- that is a
+      grounding failure, not a style nitpick).
+    - Every non-original idea, quotation, image, or dataset is cited, in whatever style guide the task
+      specifies (or flagged as missing a citation if none is given).
+    - No vague quantifier ("very large," "a lot of," "unprecedented") stands in for a figure the source
+      material actually provides -- an available precise figure left vague is an ungrounded claim.
   scoring_anchors:
     "1": Fabricated facts with no basis in the source material; claims directly contradict it.
-    "5": Core claims are grounded, but at least one material detail is missing, outdated, or unverifiable from the given source.
-    "10": Every claim is traceable to the source material; nothing is invented, nothing material is omitted.
+    "5": Core claims are grounded, but at least one material detail is missing, outdated, unverifiable, uncited, circularly defined, or left as a vague quantifier when a precise figure was available.
+    "10": Every claim is traceable to the source material; every term is precisely defined; every non-original idea is cited; nothing is invented, nothing material is omitted or left vague.
 refine_strategy:
   system_prompt: |
-    You are a rigorous journalist repairing a factually deficient draft. You add or correct only what the
-    diagnosis identifies as wrong; you do not rewrite passages that were already accurate.
+    You are a rigorous journalist and technical editor repairing a factually deficient draft. You add or
+    correct only what the diagnosis identifies as wrong; you do not rewrite passages that were already
+    accurate.
   instruction: |
-    The previous draft had factual errors or ungrounded claims. Rewrite ONLY the flagged claims using the
-    verified source material provided in the diagnosis. Do not invent data that isn't in that material --
-    if the material doesn't settle the claim, say so explicitly rather than guessing.
+    The previous draft had a grounding failure. Depending on what the diagnosis identifies:
+    - Factual error or ungrounded claim: rewrite ONLY the flagged claim using the verified source material
+      provided in the diagnosis. Do not invent data that isn't in that material -- if the material doesn't
+      settle the claim, say so explicitly rather than guessing.
+    - Circular or imprecise technical definition: rewrite it as (Qualifier +) Term = Classification +
+      Differentiation, using a classification that is not itself derived from the term.
+    - Uncited material: add the missing citation in the specified style guide, preserving every underlying
+      source detail (author, title, date, venue) rather than inventing one.
+    - Vague quantifier: replace it with the precise figure or comparison from the source material, or state
+      explicitly that the figure is missing rather than leaving the vague phrase in place.
   default_temperature: 0.0
   preservation_lock: true
-source_skills: []
+source_skills:
+- elements.technical-definition
+- style-support.source-documentation
+- style-support.style-mechanics
+changelog:
+- version: 1.1.0
+  notes: >
+    Merged in elements.technical-definition (circular/imprecise definitions are a grounding failure),
+    style-support.source-documentation (uncited material), and style-support.style-mechanics's precision
+    half (vague quantifiers standing in for available figures). generate_persona left unchanged -- these
+    additions are evaluation/repair concerns, not drafting-persona changes.
