@@ -88,11 +88,21 @@ so nothing here is silently passed off as identical to the source.
   demonstrates the full loop end to end, and references the source's own veto example only to show how the
   fixed scoring convention (change #1) applies to it.
 
-## Not implemented (documented as out of scope, not silently dropped)
+## Now implemented (was reference-only at first)
+
+The architecture originally shipped as validated configuration and documentation only. `tools/run_loop.py`
+and `tools/orchestrator.py` now actually execute Generate -> Evaluate -> (pre-filter ->) (Diagnose ->
+Refine)* -> stop against the real Claude API, at the same reference-CLI fidelity as `tools/apply_skills.py`
+elsewhere in this repo. `tools/orchestrator.py`'s decision functions (`failing_hats`, `veto_triggered`,
+`aggregate_score`, `choose_repair_lens`) are unit-tested with synthetic scores in `tests/test_orchestrator.py`
+(11 checks, no API key needed); `tests/test_run_loop.py` exercises the prompt-building functions against the
+real hat cards and task files, and the pre-filter's actual wiring into `tools/guardrails.py`.
+
+## Still not implemented (documented as out of scope, not silently dropped)
 
 The source repeatedly gestures at production infrastructure -- a durable workflow engine (Temporal, AWS Step
 Functions), a Postgres-backed state store, an FSM runtime, horizontal concurrency limits. None of that is
-built here, deliberately: this repository's existing `tools/apply_skills.py` is itself a reference CLI, not
-a production service, and `agent-loop/` is held to the same scope. `schemas/loop-config.schema.json`'s
-`white_hat_archivist` section documents the *contract* a real state store would need to satisfy, without
-implementing one.
+built here, deliberately: `agent-loop/` is held to the same scope as `tools/apply_skills.py` -- a reference
+CLI, not a production service. `run_loop.py` writes one flat JSON transcript at the end of a run rather than
+a live, queryable, crash-surviving state store; `schemas/loop-config.schema.json`'s `white_hat_archivist`
+section documents the fuller contract a production implementation would need to satisfy.

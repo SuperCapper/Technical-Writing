@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/SuperCapper/Technical-Writing/agent-loop/schemas/loop-config.schema.json",
   "title": "Agent Loop Configuration",
-  "description": "Configuration for one instance of the Generate -> Evaluate -> Refine -> Orchestrate loop: which hats participate, how evaluation is tiered, what the hard budget/veto guardrails are, and how refinement is routed. This is a reference configuration format (mirrors schemas/skill.schema.json's role for skills/*/skill.yaml) -- there is no runtime engine in this repo that executes it yet; see agent-loop/README.md.",
+  "description": "Configuration for one instance of the Generate -> Evaluate -> Refine -> Orchestrate loop: which hats participate, how evaluation is tiered, what the hard budget/veto guardrails are, and how refinement is routed. This is a reference configuration format (mirrors schemas/skill.schema.json's role for skills/*/skill.yaml); tools/run_loop.py is the reference implementation that executes it against the real Claude API -- see agent-loop/README.md.",
   "type": "object",
   "required": ["id", "name", "version", "hats", "evaluation", "budget", "convergence", "strategy_map"],
   "properties": {
@@ -100,7 +100,7 @@
     },
     "white_hat_archivist": {
       "type": "object",
-      "description": "State/history persistence. This repo does not implement a state store; this section documents the contract a real implementation must satisfy.",
+      "description": "State/history persistence. tools/run_loop.py writes one flat JSON transcript file at the end of a run, satisfying persist_every_attempt in spirit but not as a live, queryable, or crash-surviving state store; this section documents the fuller contract a production implementation would need to satisfy.",
       "properties": {
         "persist_every_attempt": { "type": "boolean", "default": true },
         "history_compression": {

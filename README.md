@@ -109,7 +109,9 @@ Technical-Writing/
 │   ├── loop-config.example.yaml
 │   ├── schemas/
 │   ├── hats/
-│   ├── tools/
+│   ├── tasks/                  # runnable example task briefs
+│   ├── tools/                  # run_loop.py (reference CLI) + orchestrator.py + validate_loop.py
+│   ├── tests/
 │   └── docs/
 └── .github/workflows/
     └── validate-skills.yml     # CI: runs tests/validate_skills.py on push/PR
@@ -129,9 +131,10 @@ CI in this repo already play the "skeleton" role, with each `skill.yaml` as a "t
 
 ## Agent Loop (independent addition)
 
-[agent-loop/](agent-loop/README.md) is a self-contained reference architecture for a Generate -> Evaluate ->
-Refine -> Orchestrate self-correcting loop, using six cognitive lenses ("hats") to draft, critique, and
-repair output. It is **not** derived from the book -- see `agent-loop/docs/source-and-changes.md` for its
-own source and the concrete fixes made to it. The plan is to eventually merge Foundations, Elements, and
-Style-support content into it as concrete instructions behind specific hats (see that doc's "Future
-integration" section) -- not done yet, and the two parts of this repo remain independent until then.
+[agent-loop/](agent-loop/README.md) is a self-contained, **runnable** reference implementation of a Generate
+-> Evaluate -> Refine -> Orchestrate self-correcting loop, using six cognitive lenses ("hats") to draft,
+critique, and repair output -- `agent-loop/tools/run_loop.py` actually executes it against the real Claude
+API. It is **not** derived from the book -- see `agent-loop/docs/source-and-changes.md` for its own source
+and the concrete fixes made to it. The plan is to eventually merge Foundations, Elements, and Style-support
+content into it as concrete instructions behind specific hats (see that doc's "Future integration" section)
+-- not done yet, and the two parts of this repo remain independent until then.

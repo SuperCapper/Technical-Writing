@@ -1,0 +1,9 @@
+task: >
+  Draft an internal email to the engineering team announcing a delay in the Q3 deployment. The blocker is
+  an unanticipated dependency on an Auth0 migration causing backwards-compatibility issues with older
+  clients.
+audience: Software engineers who have been working overtime on this deployment
+medium: Internal plain-text email
+generate_hats: [red, black]
+output_constraints: []
+constraint_params: {}

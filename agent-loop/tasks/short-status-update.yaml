@@ -1,0 +1,11 @@
+task: >
+  Write a one-paragraph status update for a project stakeholder summarizing that the migration is on
+  schedule and no blockers currently exist.
+audience: A non-technical project stakeholder
+medium: Slack message
+generate_hats: [yellow]
+output_constraints:
+- type: max_words
+  param: word_limit
+constraint_params:
+  word_limit: 40

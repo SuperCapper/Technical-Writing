@@ -17,3 +17,5 @@ jobs:
       - run: python tests/validate_skills.py
       - run: python tests/test_guardrails.py
       - run: python agent-loop/tools/validate_loop.py
+      - run: python agent-loop/tests/test_orchestrator.py
+      - run: python agent-loop/tests/test_run_loop.py

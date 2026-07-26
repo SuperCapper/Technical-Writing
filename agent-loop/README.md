@@ -11,10 +11,34 @@ four originally near-duplicated stage write-ups are unified into one document, a
 (cost-tiered evaluation, a schema, a validator, a security note) are filled in that the source never
 addressed.
 
-Like `skills/` and `tools/apply_skills.py`, this is a **reference architecture and schema**, not a running
-service -- there is no durable execution engine, state store, or FSM runtime implemented here. Treat
-`agent-loop/tools/validate_loop.py` the way you'd treat `tests/validate_skills.py`: it validates the
-*configuration*, not a live system.
+Like `skills/` and `tools/apply_skills.py`, this is a **reference implementation**, not a production
+service: `tools/run_loop.py` actually runs the loop end to end against the real Claude API, but there is no
+durable execution engine, persistent state store surviving a process restart, or horizontal concurrency --
+see `schemas/loop-config.schema.json`'s `white_hat_archivist` section for the contract a production
+implementation would need to satisfy beyond what a single JSON transcript file provides here. Treat
+`tools/validate_loop.py` the way you'd treat `tests/validate_skills.py`: it validates the *configuration*
+files (hat cards, loop configs), separately from whether a live run of `run_loop.py` behaves correctly (see
+`tests/test_orchestrator.py` and `tests/test_run_loop.py` for that, both API-free).
+
+## Running it
+
+```bash
+python agent-loop/tools/run_loop.py \
+    --loop-config agent-loop/loop-config.example.yaml \
+    --task agent-loop/tasks/deployment-delay-email.yaml \
+    --transcript-out transcript.json \
+    --dry-run --verbose   # drop --dry-run to actually call Claude (needs ANTHROPIC_API_KEY)
+```
+
+`--dry-run` prints the Generate and Evaluate prompts for the first iteration and stops -- it can't preview
+Refine, since there are no real scores yet to diagnose against. A real run writes a full transcript (every
+draft, every hat's score and justification, every diagnosis, the final status) to `--transcript-out`.
+
+`tools/orchestrator.py` holds every decision that must be deterministic, not LLM-judged: which hats failed,
+whether a veto fired, the convergence aggregate, and -- going one step further than the source material --
+*which axis gets repaired next*. That last one matters: the Diagnostic step in `run_loop.py` still makes an
+LLM call, but only to explain *why* the orchestrator's already-chosen axis failed, never to choose which
+axis. `tests/test_orchestrator.py` exercises all of this with synthetic scores, no API key required.
 
 ## The four stages, briefly
 
@@ -116,6 +140,10 @@ Contrast with the source's own worked example for the *evaluation-only* case (a 
 Hat remembers), execution moves to Refine, and the Diagnostic step routes to White+Black's `refine_strategy`
 to correct the claim before the email ever ships.
 
+This exact scenario is `tasks/deployment-delay-email.yaml` -- run it for real (see "Running it" above) to
+get an actual transcript instead of the hypothetical scores above. `tasks/short-status-update.yaml` is a
+second, shorter task that exercises the `pre_filter_output_constraints` path with a 40-word limit.
+
 ## Repository structure
 
 ```
@@ -132,8 +160,16 @@ agent-loop/
 │   ├── red.yaml     (feelings)
 │   ├── green.yaml   (creativity)
 │   └── blue.yaml    (process)
+├── tasks/
+│   ├── deployment-delay-email.yaml     # the worked example above, runnable
+│   └── short-status-update.yaml        # exercises pre_filter_output_constraints (a 40-word limit)
 ├── tools/
-│   └── validate_loop.py               # schema + cross-reference validator, mirrors tests/validate_skills.py
+│   ├── run_loop.py                     # the reference CLI: actually runs Generate->Evaluate->Refine->stop
+│   ├── orchestrator.py                 # deterministic decisions only -- no LLM calls, unit-testable
+│   └── validate_loop.py                # schema + cross-reference validator, mirrors tests/validate_skills.py
+├── tests/
+│   ├── test_orchestrator.py            # unit tests for orchestrator.py, no API key needed
+│   └── test_run_loop.py                # prompt-rendering + pre-filter wiring checks, no API key needed
 └── docs/
     └── source-and-changes.md          # exactly what was fixed/added vs. the original source document
 ```
